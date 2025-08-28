@@ -49,7 +49,7 @@ describe('ProducersService', () => {
 
             (DocumentValidator.validate as jest.Mock).mockReturnValue(DocumentType.CPF);
 
-            const created: Producer = {
+            const created = {
                 id: 'a3e6b7f4-8a27-4fd5-9f9a-8a8a8a8a8a8a',
                 documentType: DocumentType.CPF,
                 document: payload.document,
@@ -57,7 +57,7 @@ describe('ProducersService', () => {
                 created_at: new Date(),
                 updated_at: new Date(),
                 deleted_at: null as any,
-            };
+            } as Producer;
 
             (repo.create as jest.Mock).mockResolvedValue(created);
 
@@ -158,7 +158,7 @@ describe('ProducersService', () => {
     });
 
     describe('updateProducer', () => {
-        const baseProducer: Producer = {
+        const baseProducer = {
             id: '11111111-1111-1111-1111-111111111111',
             documentType: DocumentType.CPF,
             document: '12345678901',
@@ -166,7 +166,7 @@ describe('ProducersService', () => {
             created_at: new Date(),
             updated_at: new Date(),
             deleted_at: null as any,
-        };
+        } as Producer;
 
         it('should throw BadRequestException when id is empty', async () => {
             const payload = { id: '', name: 'Any', document: '98765432100' };
@@ -355,7 +355,7 @@ describe('ProducersService', () => {
         });
 
         it('should return array with id and name only', async () => {
-            const producers: Producer[] = [
+            const producers = [
                 {
                     id: '11111111-1111-1111-1111-111111111111',
                     documentType: DocumentType.CPF,
@@ -374,7 +374,7 @@ describe('ProducersService', () => {
                     updated_at: new Date(),
                     deleted_at: null as any,
                 },
-            ];
+            ] as Producer[];
             (repo.getAll as jest.Mock).mockResolvedValue(producers);
 
             const result = await service.getAllProducers();
@@ -418,7 +418,7 @@ describe('ProducersService', () => {
 
         it('should return producer when it exists', async () => {
             const id = '22222222-2222-2222-2222-222222222222';
-            const producer: Producer = {
+            const producer = {
                 id,
                 documentType: DocumentType.CPF,
                 document: '12345678901',
@@ -426,7 +426,7 @@ describe('ProducersService', () => {
                 created_at: new Date(),
                 updated_at: new Date(),
                 deleted_at: null as any,
-            };
+            } as Producer;
             (repo.getById as jest.Mock).mockResolvedValue(producer);
 
             const result = await service.findProducerById(id);

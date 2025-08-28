@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, Unique, UpdateDateColumn } from "typeorm";
 import { DocumentType } from "../shared/enums/document-type.enum"
-import { Property } from "src/properties/property.entity";
+import { Property } from "../properties/property.entity";
 
 @Entity('producers')
 export class Producer {

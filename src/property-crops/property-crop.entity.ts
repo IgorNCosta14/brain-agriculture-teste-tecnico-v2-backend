@@ -1,6 +1,6 @@
-import { Crop } from "src/crops/crop.entity";
-import { Harvest } from "src/harvests/harvest.entity";
-import { Property } from "src/properties/property.entity";
+import { Crop } from "../crops/crop.entity";
+import { Harvest } from "../harvests/harvest.entity";
+import { Property } from "../properties/property.entity";
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 @Unique('uq_property_harvest_crop', ['propertyId', 'harvestId', 'cropId'])

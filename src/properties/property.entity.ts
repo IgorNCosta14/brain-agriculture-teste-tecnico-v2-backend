@@ -1,5 +1,5 @@
-import { Producer } from "src/producers/producer.entity";
-import { PropertyCrop } from "src/property-crops/property-crop.entity";
+import { Producer } from "../producers/producer.entity";
+import { PropertyCrop } from "../property-crops/property-crop.entity";
 import { Column, CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: 'properties' })
