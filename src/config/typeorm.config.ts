@@ -1,9 +1,9 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { Producer } from '../producers/producer.entity';
-import { Crop } from 'src/crops/crop.entity';
-import { Harvest } from 'src/harvests/harvest.entity';
-import { Property } from 'src/properties/property.entity';
-import { PropertyCrop } from 'src/property-crops/property-crop.entity';
+import { Crop } from '../crops/crop.entity';
+import { Harvest } from '../harvests/harvest.entity';
+import { Property } from '../properties/property.entity';
+import { PropertyCrop } from '../property-crops/property-crop.entity';
 
 export const ConfigTypeOrm = (): TypeOrmModuleOptions => {
     const isTestEnvironment = process.env.NODE_ENV === 'test';
