@@ -1,4 +1,4 @@
-import { PropertyCrop } from 'src/property-crops/property-crop.entity';
+import { PropertyCrop } from '../property-crops/property-crop.entity';
 import {
     Entity,
     PrimaryGeneratedColumn,
