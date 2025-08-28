@@ -11,4 +11,5 @@ import { Producer } from './producer.entity';
     providers: [ProducersService, ProducerRepository],
     exports: [ProducersService]
 })
+
 export class ProducersModule { }
