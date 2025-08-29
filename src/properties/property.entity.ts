@@ -11,9 +11,6 @@ export class Property {
     @JoinColumn({ name: 'producer_id' })
     producer: Producer;
 
-    @Column({ name: 'producer_id' })
-    producerId: string;
-
     @Column({ type: 'varchar', length: 150 })
     name: string;
 
@@ -31,6 +28,18 @@ export class Property {
 
     @Column({ name: 'vegetation_area_ha', type: 'numeric', precision: 12, scale: 2 })
     vegetationAreaHa: string;
+
+    @Column({ type: 'varchar', length: 20, nullable: true })
+    cep?: string | null;
+
+    @Column({ type: 'varchar', length: 255, nullable: true })
+    complement?: string | null;
+
+    @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true })
+    latitude?: string | null;
+
+    @Column({ type: 'numeric', precision: 10, scale: 6, nullable: true })
+    longitude?: string | null;
 
     @OneToMany(() => PropertyCrop, pc => pc.property)
     propertyCrops: PropertyCrop[];
