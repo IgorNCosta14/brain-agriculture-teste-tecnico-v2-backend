@@ -4,7 +4,7 @@ import { HarvestsService } from './harvests.service';
 import { CreateHarvestBodyDto } from './dtos/create-harvest-body.dto';
 import { HarvestIdParamsDto } from './dtos/harvest-id-params.dto';
 
-@ApiTags('harvests')
+@ApiTags('Harvests')
 @Controller('harvests')
 export class HarvestsController {
     constructor(private readonly service: HarvestsService) { }

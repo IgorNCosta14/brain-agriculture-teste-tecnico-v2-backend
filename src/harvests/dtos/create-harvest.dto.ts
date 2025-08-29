@@ -1,4 +1,4 @@
-export class CreateHarvestDto {
+export interface CreateHarvestDto {
     label: string;
     year: number;
     startDate: string;

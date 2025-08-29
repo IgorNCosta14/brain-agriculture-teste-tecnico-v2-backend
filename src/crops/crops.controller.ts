@@ -4,7 +4,7 @@ import { CreateCropBodyDto } from './dtos/create-crop-body.dto';
 import { CropIdParamsDto } from './dtos/crop-id-params.dto';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('crops')
+@ApiTags('Crops')
 @Controller('crops')
 export class CropsController {
     constructor(
