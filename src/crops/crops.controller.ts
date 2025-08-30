@@ -167,23 +167,32 @@ export class CropsController {
         };
     }
 
+    @Get('/:id')
     @ApiOperation({
         summary: 'Buscar cultura por ID',
         description:
-            'Retorna uma cultura específica a partir do seu identificador único (UUID). Caso o ID não exista, será retornado erro 404.',
+            'Retorna uma cultura específica pelo seu identificador (UUID). Caso não exista, retorna 404.',
     })
     @ApiResponse({
         status: 200,
-        description: 'Cultura encontrada com sucesso',
+        description: 'Crop successfully retrieved',
         schema: {
             example: {
                 statusCode: 200,
                 message: 'Crop successfully retrieved',
                 data: {
                     crop: {
-                        id: 'e3a6d1e0-4f1f-4b47-9af0-3cbd9e6f5a10',
-                        name: 'Soja',
-                        createdAt: '2025-08-28T12:34:56.789Z',
+                        id: '6c6212e8-eff6-48ab-879b-dec77e5c585d',
+                        name: 'Milho',
+                        propertyCrops: [
+                            {
+                                id: '841a07b8-5eae-4c99-b60f-c02e03df4a6b',
+                                createdAt: '2025-08-30T09:51:38.909Z',
+                                updatedAt: '2025-08-30T09:51:38.909Z',
+                                deletedAt: null,
+                            },
+                        ],
+                        createdAt: '2025-08-28T22:57:02.968Z',
                     },
                 },
             },
@@ -191,23 +200,17 @@ export class CropsController {
     })
     @ApiResponse({
         status: 404,
-        description: 'Cultura não encontrada',
+        description: 'Crop not found',
         content: {
             'application/json': {
-                examples: {
-                    notFound: {
-                        summary: 'ID não existe no banco de dados',
-                        value: {
-                            statusCode: 404,
-                            message: 'Crop not found',
-                            error: 'Not Found',
-                        },
-                    },
+                example: {
+                    statusCode: 404,
+                    message: 'Crop not found',
+                    error: 'Not Found',
                 },
             },
         },
     })
-    @Get('/:id')
     async findCropById(
         @Param() { id }: CropIdParamsDto
     ) {

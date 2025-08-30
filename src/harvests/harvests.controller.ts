@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBadRequestResponse, ApiBody, ApiNotFoundResponse, ApiOperation, ApiParam, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HarvestsService } from './harvests.service';
 import { CreateHarvestBodyDto } from './dtos/create-harvest-body.dto';
 import { HarvestIdParamsDto } from './dtos/harvest-id-params.dto';
@@ -188,21 +188,30 @@ export class HarvestsController {
 
     @Get('/:id')
     @ApiOperation({
-        summary: 'Buscar cultura por ID',
+        summary: 'Buscar safra por ID',
         description:
-            'Retorna uma cultura específica pelo seu identificador (UUID). Caso não exista, retorna 404.',
+            'Retorna os detalhes de uma safra específica a partir do seu identificador (UUID v4).',
+    })
+    @ApiParam({
+        name: 'id',
+        required: true,
+        description: 'Identificador da safra (UUID v4)',
+        example: '0f6107bc-2bc0-4125-8c16-b6030df20d4b',
     })
     @ApiResponse({
         status: 200,
-        description: 'Cultura encontrada com sucesso',
+        description: 'Safra retornada com sucesso',
         schema: {
             example: {
                 statusCode: 200,
-                message: 'Crop successfully retrieved',
+                message: 'Harvest successfully retrieved',
                 data: {
-                    crop: {
-                        id: '6c6212e8-eff6-48ab-879b-dec77e5c585d',
-                        name: 'Milho',
+                    harvest: {
+                        id: '0f6107bc-2bc0-4125-8c16-b6030df20d4b',
+                        label: '2ª Safra 2025',
+                        year: 2025,
+                        startDate: '2025-01-29',
+                        endDate: '2025-04-30',
                         propertyCrops: [
                             {
                                 id: '841a07b8-5eae-4c99-b60f-c02e03df4a6b',
@@ -211,27 +220,33 @@ export class HarvestsController {
                                 deletedAt: null,
                             },
                         ],
-                        createdAt: '2025-08-28T22:57:02.968Z',
+                        createdAt: '2025-08-29T16:19:34.118Z',
+                        updatedAt: '2025-08-29T16:19:34.118Z',
                     },
                 },
             },
         },
     })
-    @ApiResponse({
-        status: 404,
-        description: 'Cultura não encontrada',
-        content: {
-            'application/json': {
-                examples: {
-                    notFound: {
-                        summary: 'ID não encontrado',
-                        value: {
-                            statusCode: 404,
-                            message: 'Crop not found',
-                            error: 'Not Found',
-                        },
-                    },
-                },
+    @ApiBadRequestResponse({
+        description: 'Parâmetro inválido (ex.: UUID mal formatado)',
+        schema: {
+            example: {
+                statusCode: 400,
+                message: [
+                    'Id must be provided in params',
+                    'Id must be a valid UUID (version 4), it should be provided in params',
+                ],
+                error: 'Bad Request',
+            },
+        },
+    })
+    @ApiNotFoundResponse({
+        description: 'Safra não encontrada',
+        schema: {
+            example: {
+                statusCode: 404,
+                message: 'Harvest not found',
+                error: 'Not Found',
             },
         },
     })
