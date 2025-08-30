@@ -1,9 +1,10 @@
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
 import { PropertiesService } from "./properties.service";
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query } from "@nestjs/common";
 import { CreatePropertyBodyDto } from "./dtos/create-property-body.dto";
 import { UpdatePropertyBodyDto } from "./dtos/update-property-body.dto";
 import { PropertyIdParamsDto } from "./dtos/property-id-params.dto";
+import { PropertiesQueryDto } from "src/properties/dtos/properties-query.dto ";
 
 @ApiTags('Properties')
 @Controller('properties')
@@ -145,6 +146,159 @@ export class PropertiesController {
         return {
             statusCode: HttpStatus.CREATED,
             message: 'Property successfully created',
+            data: {
+                property
+            }
+        }
+    }
+
+    @Get('/')
+    @ApiOperation({
+        summary: 'Listar propriedades',
+        description:
+            'Retorna a lista paginada de propriedades cadastradas no sistema, com suporte a paginação e ordenação.',
+    })
+    @ApiOkResponse({
+        description: 'Lista de propriedades retornada com sucesso',
+        schema: {
+            example: {
+                statusCode: 200,
+                message: 'Properties successfully retrieved',
+                data: {
+                    properties: {
+                        items: [
+                            {
+                                id: '4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a',
+                                producerId: '0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a',
+                                name: 'Fazenda Boa Esperança',
+                                city: 'Sorriso',
+                                state: 'MT',
+                                totalAreaHa: '1500.50',
+                                arableAreaHa: '1000.00',
+                                vegetationAreaHa: '500.50',
+                                cep: '78555000',
+                                complement: 'Galpão 3',
+                                latitude: '-12.546789',
+                                longitude: '-55.721234',
+                                createdAt: '2025-08-29T12:00:00.000Z',
+                                updatedAt: '2025-08-29T12:00:00.000Z',
+                                deletedAt: null,
+                            },
+                        ],
+                        total: 1,
+                        totalPages: 1,
+                        page: 1,
+                        limit: 10,
+                        order: 'DESC',
+                        orderBy: 'createdAt',
+                    },
+                },
+            },
+        },
+    })
+    async getProperties(
+        @Query() { order, orderBy, page, limit }: PropertiesQueryDto
+    ) {
+        const properties = await this.service.getProperty({
+            order,
+            page,
+            limit,
+            orderBy
+        })
+
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'Properties successfully found',
+            data: {
+                properties
+            }
+        }
+    }
+
+    @Get('/:id')
+    @ApiOperation({
+        summary: "Buscar propriedade por ID",
+        description:
+            "Endpoint para buscar uma propriedade específica pelo seu ID (UUID v4).",
+    })
+    @ApiParam({
+        name: "id",
+        description: "UUID v4 da propriedade",
+        example: "a4527ea2-915e-4729-ad30-1de710adabbf",
+    })
+    @ApiOkResponse({
+        description: 'Lista de propriedades retornada com sucesso',
+        schema: {
+            example: {
+                statusCode: 200,
+                message: 'Properties successfully retrieved',
+                data: {
+                    properties: {
+                        items: [
+                            {
+                                id: '4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a',
+                                producerId: '0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a',
+                                name: 'Fazenda Boa Esperança',
+                                city: 'Sorriso',
+                                state: 'MT',
+                                totalAreaHa: '1500.50',
+                                arableAreaHa: '1000.00',
+                                vegetationAreaHa: '500.50',
+                                cep: '78555000',
+                                complement: 'Galpão 3',
+                                latitude: '-12.546789',
+                                longitude: '-55.721234',
+                                createdAt: '2025-08-29T12:00:00.000Z',
+                                updatedAt: '2025-08-29T12:00:00.000Z',
+                                deletedAt: null,
+                            },
+                        ],
+                        total: 1,
+                        totalPages: 1,
+                        page: 1,
+                        limit: 10,
+                        order: 'DESC',
+                        orderBy: 'createdAt',
+                    },
+                },
+            },
+        },
+    })
+    @ApiBadRequestResponse({
+        description: "ID ausente ou inválido.",
+        examples: {
+            invalidUuid: {
+                summary: "UUID inválido (param)",
+                value: {
+                    statusCode: 400,
+                    error: "Bad Request",
+                    message:
+                        "Id must be a valid UUID (version 4), it should be provided in params",
+                },
+            },
+        },
+    })
+    @ApiNotFoundResponse({
+        description: "Propriedade não encontrada.",
+        examples: {
+            notFound: {
+                summary: "Propriedade inexistente",
+                value: {
+                    statusCode: 404,
+                    error: "Not Found",
+                    message: "Property not found!",
+                },
+            },
+        },
+    })
+    async getPropertyById(
+        @Param() { id }: PropertyIdParamsDto,
+    ) {
+        const property = await this.service.getPropertyById(id)
+
+        return {
+            statusCode: HttpStatus.OK,
+            message: 'Property successfully found',
             data: {
                 property
             }
@@ -300,140 +454,6 @@ export class PropertiesController {
         return {
             statusCode: HttpStatus.OK,
             message: 'Property successfully updated',
-            data: {
-                property
-            }
-        }
-    }
-
-    @Get('/')
-    @ApiOperation({
-        summary: "Listar propriedades",
-        description:
-            "Endpoint para obter a lista de todas as propriedades cadastradas.",
-    })
-    @ApiOkResponse({
-        description: "Lista de propriedades encontrada com sucesso.",
-        examples: {
-            success: {
-                summary: "Sucesso",
-                value: {
-                    statusCode: 200,
-                    message: "Properties successfully found",
-                    data: {
-                        properties: [
-                            {
-                                id: "4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a",
-                                producer_id: "0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a",
-                                name: "Fazenda Boa Esperança",
-                                city: "Sorriso",
-                                state: "MT",
-                                total_area_ha: "1500.50",
-                                arable_area_ha: "1000.00",
-                                vegetation_area_ha: "500.50",
-                                cep: "78555000",
-                                complement: "Galpão 3",
-                                latitude: "-12.546789",
-                                longitude: "-55.721234",
-                                created_at: "2025-08-29T12:00:00.000Z",
-                                updated_at: "2025-08-29T12:00:00.000Z",
-                                deleted_at: null,
-                            },
-                        ],
-                    },
-                },
-            },
-        },
-    })
-    async getProperties() {
-        const properties = await this.service.getPropertyAll()
-
-        return {
-            statusCode: HttpStatus.OK,
-            message: 'Properties successfully found',
-            data: {
-                properties
-            }
-        }
-    }
-
-    @Get('/:id')
-    @ApiOperation({
-        summary: "Buscar propriedade por ID",
-        description:
-            "Endpoint para buscar uma propriedade específica pelo seu ID (UUID v4).",
-    })
-    @ApiParam({
-        name: "id",
-        description: "UUID v4 da propriedade",
-        example: "4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a",
-    })
-    @ApiOkResponse({
-        description: "Propriedade encontrada com sucesso.",
-        examples: {
-            success: {
-                summary: "Sucesso",
-                value: {
-                    statusCode: 200,
-                    message: "Property successfully found",
-                    data: {
-                        property: {
-                            id: "4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a",
-                            producer_id: "0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a",
-                            name: "Fazenda Boa Esperança",
-                            city: "Sorriso",
-                            state: "MT",
-                            total_area_ha: "1500.50",
-                            arable_area_ha: "1000.00",
-                            vegetation_area_ha: "500.50",
-                            cep: "78555000",
-                            complement: "Galpão 3",
-                            latitude: "-12.546789",
-                            longitude: "-55.721234",
-                            created_at: "2025-08-29T12:00:00.000Z",
-                            updated_at: "2025-08-29T12:00:00.000Z",
-                            deleted_at: null,
-                        },
-                    },
-                },
-            },
-        },
-    })
-    @ApiBadRequestResponse({
-        description: "ID ausente ou inválido.",
-        examples: {
-            invalidUuid: {
-                summary: "UUID inválido (param)",
-                value: {
-                    statusCode: 400,
-                    error: "Bad Request",
-                    message:
-                        "Id must be a valid UUID (version 4), it should be provided in params",
-                },
-            },
-        },
-    })
-    @ApiNotFoundResponse({
-        description: "Propriedade não encontrada.",
-        examples: {
-            notFound: {
-                summary: "Propriedade inexistente",
-                value: {
-                    statusCode: 404,
-                    error: "Not Found",
-                    message: "Property not found!",
-                },
-            },
-        },
-    })
-    async getPropertyById(
-        @Param() { id }: PropertyIdParamsDto,
-    ) {
-        const property = await this.service.getPropertyById(id)
-
-        return {
-            statusCode: HttpStatus.OK,
-            message: 'Property successfully found',
             data: {
                 property
             }

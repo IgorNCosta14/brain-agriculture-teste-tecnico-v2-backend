@@ -7,6 +7,9 @@ import { PropertyRepository } from './repositories/implementation/property.repos
 import { PropertiesService } from './properties.service';
 import { IPropertyRepository } from './repositories/property-repository.interface';
 import { AreaValidate } from '../utils/area-validate.util';
+import { FindAllPropertiesDto } from './dtos/find-all-properties.dto';
+import { PropertyOrderByEnum } from './enum/property-order-by.enum';
+import { FindAllPropertiesRespDto } from './dtos/find-all-properties-resp.dto';
 
 describe('PropertiesService', () => {
     let service: PropertiesService;
@@ -83,9 +86,9 @@ describe('PropertiesService', () => {
                 documentType: 0 as any,
                 document: '00000000000',
                 name: 'Producer X',
-                created_at: new Date(),
-                updated_at: new Date(),
-                deleted_at: null as any,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                deletedAt: null as any,
                 properties: [] as any,
             };
 
@@ -155,9 +158,9 @@ describe('PropertiesService', () => {
                 documentType: 0 as any,
                 document: '11111111111',
                 name: 'Producer Y',
-                created_at: new Date(),
-                updated_at: new Date(),
-                deleted_at: null as any,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                deletedAt: null as any,
                 properties: [] as any,
             };
 
@@ -664,57 +667,96 @@ describe('PropertiesService', () => {
         });
     });
 
-    describe('getPropertyAll', () => {
-        it('should return empty array when no properties exist', async () => {
-            (repo.findAll as jest.Mock).mockResolvedValue([]);
+    describe('getProperty', () => {
+        it('should delegate to repo.findAll with given filters and return paginated result', async () => {
+            const dto: FindAllPropertiesDto = {
+                order: 'ASC',
+                page: 2,
+                limit: 5,
+                orderBy: PropertyOrderByEnum.NAME,
+            };
 
-            const result = await service.getPropertyAll();
+            const producer: Producer = {
+                id: 'p-1',
+                documentType: 0 as any,
+                document: '00000000000',
+                name: 'Producer',
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                deletedAt: null as any,
+                properties: [] as any,
+            };
 
-            expect(repo.findAll).toHaveBeenCalled();
-            expect(result).toEqual([]);
+            const item: Property = {
+                id: 'prop-1',
+                producer,
+                name: 'Farm A',
+                city: 'City A',
+                state: 'ST',
+                totalAreaHa: '100.00',
+                arableAreaHa: '60.00',
+                vegetationAreaHa: '40.00',
+                cep: '70000000',
+                complement: null,
+                latitude: null,
+                longitude: null,
+                propertyCrops: [],
+                createdAt: new Date('2025-08-29T10:00:00.000Z'),
+                updatedAt: new Date('2025-08-29T10:00:00.000Z'),
+                deletedAt: null,
+            };
+
+            const paged: FindAllPropertiesRespDto = {
+                items: [item],
+                total: 1,
+                totalPages: 1,
+                page: 2,
+                limit: 5,
+                order: 'ASC',
+                orderBy: PropertyOrderByEnum.NAME,
+            };
+
+            (repo.findAll as jest.Mock).mockResolvedValue(paged);
+
+            const result = await service.getProperty(dto);
+
+            expect(repo.findAll).toHaveBeenCalledTimes(1);
+            expect(repo.findAll).toHaveBeenCalledWith(dto);
+            expect(result).toEqual(paged);
         });
 
-        it('should return array with id and name only', async () => {
-            const properties = [
-                {
-                    id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-                    name: 'Fazenda Alpha',
-                    city: 'Sinop',
-                    state: 'MT',
-                    totalAreaHa: '150.00',
-                    arableAreaHa: '90.00',
-                    vegetationAreaHa: '60.00',
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    deletedAt: null,
-                },
-                {
-                    id: 'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-                    name: 'Fazenda Beta',
-                    city: 'Lucas do Rio Verde',
-                    state: 'MT',
-                    totalAreaHa: '200.00',
-                    arableAreaHa: '120.00',
-                    vegetationAreaHa: '80.00',
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                    deletedAt: null,
-                },
-            ] as unknown as Property[];
+        it('should call repo.findAll with empty object to rely on repository defaults', async () => {
+            const paged: FindAllPropertiesRespDto = {
+                items: [],
+                total: 0,
+                totalPages: 0,
+                page: 1,
+                limit: 10,
+                order: 'DESC',
+                orderBy: PropertyOrderByEnum.CREATED_AT,
+            };
 
-            (repo.findAll as jest.Mock).mockResolvedValue(properties);
+            (repo.findAll as jest.Mock).mockResolvedValue(paged);
 
-            const result = await service.getPropertyAll();
+            // service.getProperty apenas repassa; repo aplica defaults
+            const result = await service.getProperty({} as any);
 
-            expect(repo.findAll).toHaveBeenCalled();
-            expect(result).toEqual([
-                { id: properties[0].id, name: properties[0].name },
-                { id: properties[1].id, name: properties[1].name },
-            ]);
+            expect(repo.findAll).toHaveBeenCalledWith({});
+            expect(result).toEqual(paged);
+        });
 
-            result.forEach((item) => {
-                expect(Object.keys(item)).toEqual(['id', 'name']);
-            });
+        it('should propagate repository errors', async () => {
+            const dto: FindAllPropertiesDto = {
+                order: 'DESC',
+                page: 1,
+                limit: 10,
+                orderBy: PropertyOrderByEnum.CREATED_AT,
+            };
+
+            (repo.findAll as jest.Mock).mockRejectedValue(new Error('db boom'));
+
+            await expect(service.getProperty(dto)).rejects.toThrow('db boom');
+            expect(repo.findAll).toHaveBeenCalledWith(dto);
         });
     });
 

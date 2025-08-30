@@ -6,6 +6,8 @@ import { ProducersService } from "../producers/producers.service";
 import { AreaValidate } from "../utils/area-validate.util";
 import { CreatePropertyServiceDto } from "./dtos/create-property-service.dto";
 import { UpdatePropertyDto } from "./dtos/update-property.dto";
+import { FindAllPropertiesDto } from "./dtos/find-all-properties.dto";
+import { FindAllPropertiesRespDto } from "./dtos/find-all-properties-resp.dto";
 
 @Injectable()
 export class PropertiesService {
@@ -125,15 +127,18 @@ export class PropertiesService {
         return property;
     }
 
-    async getPropertyAll(): Promise<Partial<Property>[]> {
-        const properties = await this.repo.findAll();
-
-        return properties.map(({ id, name }) => {
-            return {
-                id,
-                name
-            }
-        })
+    async getProperty({
+        order,
+        page,
+        limit,
+        orderBy
+    }: FindAllPropertiesDto): Promise<FindAllPropertiesRespDto> {
+        return await this.repo.findAll({
+            order,
+            page,
+            limit,
+            orderBy
+        });
     }
 
     async deleteProperty(id: string): Promise<void> {

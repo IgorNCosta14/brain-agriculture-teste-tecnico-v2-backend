@@ -4,6 +4,9 @@ import { Property } from '../../property.entity';
 import { Repository } from 'typeorm';
 import { IPropertyRepository } from '../property-repository.interface';
 import { CreatePropertyDto } from '../../dtos/create-property.dto';
+import { PropertyOrderByEnum } from '../../enum/property-order-by.enum';
+import { FindAllPropertiesRespDto } from '../../dtos/find-all-properties-resp.dto';
+import { FindAllPropertiesDto } from '../../dtos/find-all-properties.dto';
 
 @Injectable()
 export class PropertyRepository implements IPropertyRepository {
@@ -54,11 +57,30 @@ export class PropertyRepository implements IPropertyRepository {
         return await this.repo.findOne({
             where: {
                 id
-            }
+            }, relations: ['propertyCrops']
         })
     }
 
-    async findAll(): Promise<Property[]> {
-        return await this.repo.find();
+    async findAll({
+        order = 'DESC',
+        page = 1,
+        limit = 10,
+        orderBy = PropertyOrderByEnum.CREATED_AT,
+    }: FindAllPropertiesDto): Promise<FindAllPropertiesRespDto> {
+        const [items, total] = await this.repo.findAndCount({
+            order: { [orderBy]: order },
+            skip: (page - 1) * limit,
+            take: limit
+        });
+
+        return {
+            items,
+            total,
+            totalPages: Math.ceil(total / limit),
+            page,
+            limit,
+            order,
+            orderBy,
+        };
     }
 }
