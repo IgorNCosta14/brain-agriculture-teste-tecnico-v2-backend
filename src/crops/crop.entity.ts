@@ -7,7 +7,7 @@ import {
     CreateDateColumn,
 } from 'typeorm';
 
-@Entity({ name: 'crop' })
+@Entity({ name: 'crops' })
 export class Crop {
     @PrimaryGeneratedColumn('uuid')
     id: string;

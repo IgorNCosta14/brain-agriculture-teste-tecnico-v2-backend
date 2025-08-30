@@ -1,7 +1,7 @@
 import { PropertyCrop } from "../property-crops/property-crop.entity";
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity({ name: 'harvest' })
+@Entity({ name: 'harvests' })
 export class Harvest {
     @PrimaryGeneratedColumn('uuid')
     id: string;

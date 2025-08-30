@@ -83,11 +83,21 @@ export class PropertyCropController {
     @Get('/')
     @ApiOperation({
         summary: 'Listar vínculos de culturas',
-        description:
-            'Retorna a lista paginada dos registros que vinculam propriedades, safras e culturas, com suporte a paginação, ordenação e filtros por IDs.',
+        description: `
+            Endpoint para listar os vínculos entre propriedades, safras e culturas.
+
+            - Suporta **paginação** (page, limit).
+            - Suporta **ordenação** (order, orderBy).
+            - Permite aplicar **filtros por ID** (propertyId, harvestId, cropId).
+            - Retorna dados completos da propriedade, safra e cultura relacionados.
+
+            **Observações:**
+            - "order" pode ser 'ASC' ou 'DESC'.
+            - "orderBy" pode ser um dos campos: 'createdAt', 'updatedAt'.
+    `,
     })
     @ApiOkResponse({
-        description: 'Lista de vínculos retornada com sucesso',
+        description: 'Lista paginada de vínculos retornada com sucesso',
         schema: {
             example: {
                 statusCode: 200,

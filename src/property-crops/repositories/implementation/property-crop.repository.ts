@@ -56,21 +56,19 @@ export class PropertyCropRepository implements IPropertycropRepository {
             .leftJoinAndSelect('pc.harvest', 'harvest')
             .leftJoinAndSelect('pc.crop', 'crop');
 
-        if (propertyId) {
-            qb.andWhere('property.id = :propertyId', { propertyId });
-        }
-        if (harvestId) {
-            qb.andWhere('harvest.id = :harvestId', { harvestId });
-        }
-        if (cropId) {
-            qb.andWhere('crop.id = :cropId', { cropId });
-        }
+        if (propertyId) qb.andWhere('property.id = :propertyId', { propertyId });
+        if (harvestId) qb.andWhere('harvest.id = :harvestId', { harvestId });
+        if (cropId) qb.andWhere('crop.id = :cropId', { cropId });
 
         const orderColumnMap: Record<PropertyCropOrderByEnum, string> = {
-            [PropertyCropOrderByEnum.CREATED_AT]: 'pc.created_at',
+            [PropertyCropOrderByEnum.CREATED_AT]: 'pc.createdAt',
+            // [PropertyCropOrderByEnum.UPDATED_AT]: 'pc.updatedAt',
+            // [PropertyCropOrderByEnum.PROPERTY_NAME]: 'property.name',
+            // [PropertyCropOrderByEnum.HARVEST_YEAR]: 'harvest.year',
+            // [PropertyCropOrderByEnum.CROP_NAME]: 'crop.name',
         };
 
-        const orderColumn = orderColumnMap[orderBy] ?? 'pc.created_at';
+        const orderColumn = orderColumnMap[orderBy] ?? 'pc.createdAt';
 
         qb.orderBy(orderColumn, order === 'ASC' ? 'ASC' : 'DESC')
             .skip((safePage - 1) * safeLimit)

@@ -3,7 +3,7 @@ import { Harvest } from "../harvests/harvest.entity";
 import { Property } from "../properties/property.entity";
 import { CreateDateColumn, DeleteDateColumn, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-@Entity({ name: 'property_crop' })
+@Entity({ name: 'property_crops' })
 export class PropertyCrop {
     @PrimaryGeneratedColumn('uuid')
     id: string;
