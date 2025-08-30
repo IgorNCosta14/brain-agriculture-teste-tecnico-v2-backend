@@ -10,7 +10,7 @@ import { ProducersModule } from 'src/producers/producers.module';
     imports: [TypeOrmModule.forFeature([Property]), ProducersModule],
     controllers: [PropertiesController],
     providers: [PropertiesService, PropertyRepository],
-    exports: []
+    exports: [PropertiesService, PropertyRepository]
 })
 
 export class PropertiesModule { }
