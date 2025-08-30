@@ -7,6 +7,7 @@ import { CropsModule } from './crops/crops.module';
 import { HarvestsModule } from './harvests/harvests.module';
 import { PropertiesModule } from './properties/properties.module';
 import { PropertyCropsModule } from './property-crops/property-crops.module';
+import { ReportsModule } from './reports/reports.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { PropertyCropsModule } from './property-crops/property-crops.module';
     CropsModule,
     HarvestsModule,
     PropertiesModule,
-    PropertyCropsModule
+    PropertyCropsModule,
+    ReportsModule
   ]
 })
 export class AppModule { }
