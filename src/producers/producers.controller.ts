@@ -208,7 +208,6 @@ export class ProducersController {
             },
         },
     })
-    @Get('/:id')
     async findProducerById(
         @Param() { id }: FindProducerByIdParamsDto
     ) {
@@ -221,6 +220,7 @@ export class ProducersController {
         }
     }
 
+    @Put('/:id')
     @ApiOperation({
         summary: 'Atualizar produtor por ID',
         description:
@@ -348,7 +348,6 @@ export class ProducersController {
             },
         },
     })
-    @Put('/:id')
     async updateProducer(
         @Param() { id }: FindProducerByIdParamsDto,
         @Body() { document, name }: UpdateProducerBodyDto
@@ -366,6 +365,7 @@ export class ProducersController {
         }
     }
 
+    @Delete('/:id')
     @ApiOperation({
         summary: 'Excluir produtor (soft delete)',
         description:
@@ -423,7 +423,6 @@ export class ProducersController {
             },
         },
     })
-    @Delete('/:id')
     async deleteProducer(
         @Param() { id }: FindProducerByIdParamsDto
     ) {
