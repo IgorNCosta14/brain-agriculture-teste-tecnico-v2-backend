@@ -24,7 +24,7 @@ describe('ProducersService', () => {
         getByDocument: jest.fn(),
         getAll: jest.fn(),
         getByName: jest.fn(),
-        softDelete: jest.fn(),
+        delete: jest.fn(),
     });
 
     beforeEach(async () => {
@@ -128,7 +128,7 @@ describe('ProducersService', () => {
             );
 
             expect(repo.getById).not.toHaveBeenCalled();
-            expect(repo.softDelete).not.toHaveBeenCalled();
+            expect(repo.delete).not.toHaveBeenCalled();
         });
 
         it('should throw NotFoundException when producer does not exist', async () => {
@@ -142,18 +142,18 @@ describe('ProducersService', () => {
             );
 
             expect(repo.getById).toHaveBeenCalledWith(id);
-            expect(repo.softDelete).not.toHaveBeenCalled();
+            expect(repo.delete).not.toHaveBeenCalled();
         });
 
         it('should soft delete producer when it exists', async () => {
             const id = '7c5c0c3e-4d8b-4f0c-8a0c-222222222222';
             (repo.getById as jest.Mock).mockResolvedValue({ id } as Producer);
-            (repo.softDelete as jest.Mock).mockResolvedValue(undefined);
+            (repo.delete as jest.Mock).mockResolvedValue(undefined);
 
             await expect(service.deleteProducer(id)).resolves.toBeUndefined();
 
             expect(repo.getById).toHaveBeenCalledWith(id);
-            expect(repo.softDelete).toHaveBeenCalledWith(id);
+            expect(repo.delete).toHaveBeenCalledWith(id);
         });
     });
 

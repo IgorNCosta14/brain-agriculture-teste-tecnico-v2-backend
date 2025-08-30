@@ -50,7 +50,7 @@ export class ProducersService {
             throw new NotFoundException("Producer not found!")
         }
 
-        await this.repo.softDelete(id);
+        await this.repo.delete(id);
     }
 
     async updateProducer({ id, document, name }: UpdateProducerDto): Promise<Producer> {
