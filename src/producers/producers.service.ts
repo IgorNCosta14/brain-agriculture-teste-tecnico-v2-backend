@@ -5,6 +5,8 @@ import { Producer } from "./producer.entity";
 import { DocumentValidator } from "../utils/document-validator.util";
 import { CreateProducerBodyDto } from "./dtos/create-producer-body.dto";
 import { UpdateProducerDto } from "./dtos/update-producer.dto";
+import { FindAllProducersDto } from "./dtos/find-all-producers.dto";
+import { FindAllProducersRespDto } from "./dtos/find-all-producers-resp.dto";
 
 @Injectable()
 export class ProducersService {
@@ -88,15 +90,18 @@ export class ProducersService {
         return await this.repo.update(producer);
     }
 
-    async getAllProducers(): Promise<Partial<Producer>[]> {
-        const producers = await this.repo.getAll();
-
-        return producers.map((producer) => {
-            return {
-                id: producer.id,
-                name: producer.name
-            }
-        })
+    async getProducers({
+        order,
+        page,
+        limit,
+        orderBy
+    }: FindAllProducersDto): Promise<FindAllProducersRespDto> {
+        return await this.repo.getAll({
+            order,
+            page,
+            limit,
+            orderBy
+        });
     }
 
     async findProducerById(id: string): Promise<Producer> {

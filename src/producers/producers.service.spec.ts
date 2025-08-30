@@ -6,6 +6,7 @@ import { Producer } from './producer.entity';
 import { ProducerRepository } from './repositories/implementation/producer.repository';
 import { DocumentValidator } from '../utils/document-validator.util';
 import { DocumentType } from '../shared/enums/document-type.enum'
+import { ProducerOrderByEnum } from './enum/producer-order-by.enum';
 
 jest.mock('../utils/document-validator.util', () => ({
     DocumentValidator: {
@@ -54,9 +55,9 @@ describe('ProducersService', () => {
                 documentType: DocumentType.CPF,
                 document: payload.document,
                 name: payload.name,
-                created_at: new Date(),
-                updated_at: new Date(),
-                deleted_at: null as any,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                deletedAt: null as any,
             } as Producer;
 
             (repo.create as jest.Mock).mockResolvedValue(created);
@@ -163,9 +164,9 @@ describe('ProducersService', () => {
             documentType: DocumentType.CPF,
             document: '12345678901',
             name: 'Old Name',
-            created_at: new Date(),
-            updated_at: new Date(),
-            deleted_at: null as any,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+            deletedAt: null as any,
         } as Producer;
 
         it('should throw BadRequestException when id is empty', async () => {
@@ -344,50 +345,90 @@ describe('ProducersService', () => {
         });
     });
 
-    describe('getAllProducers', () => {
-        it('should return empty array when no producers exist', async () => {
-            (repo.getAll as jest.Mock).mockResolvedValue([]);
+    describe('getProducers', () => {
+        it('should call repository with given params and return the paginated result', async () => {
+            const dto = {
+                order: 'ASC' as const,
+                page: 2,
+                limit: 10,
+                orderBy: ProducerOrderByEnum.NAME,
+            };
 
-            const result = await service.getAllProducers();
-
-            expect(repo.getAll).toHaveBeenCalled();
-            expect(result).toEqual([]);
-        });
-
-        it('should return array with id and name only', async () => {
-            const producers = [
+            const items: Producer[] = [
                 {
-                    id: '11111111-1111-1111-1111-111111111111',
+                    id: 'f1d2d2f9-0000-4000-8000-aaaaaaaaaaaa',
                     documentType: DocumentType.CPF,
                     document: '12345678901',
                     name: 'Alice',
-                    created_at: new Date(),
-                    updated_at: new Date(),
-                    deleted_at: null as any,
-                },
-                {
-                    id: '22222222-2222-2222-2222-222222222222',
-                    documentType: DocumentType.CNPJ,
-                    document: '11222333000181',
-                    name: 'Bob',
-                    created_at: new Date(),
-                    updated_at: new Date(),
-                    deleted_at: null as any,
-                },
-            ] as Producer[];
-            (repo.getAll as jest.Mock).mockResolvedValue(producers);
+                    createdAt: new Date(),
+                    updatedAt: new Date(),
+                    deletedAt: null as any,
+                } as Producer,
+            ];
 
-            const result = await service.getAllProducers();
+            const repoResp = {
+                items,
+                total: 1,
+                totalPages: 1,
+                page: dto.page,
+                limit: dto.limit,
+                orderBy: dto.orderBy,
+                order: dto.order,
+            };
 
-            expect(repo.getAll).toHaveBeenCalled();
-            expect(result).toEqual([
-                { id: producers[0].id, name: producers[0].name },
-                { id: producers[1].id, name: producers[1].name },
-            ]);
+            (repo.getAll as jest.Mock).mockResolvedValue(repoResp);
 
-            result.forEach((item) => {
-                expect(Object.keys(item)).toEqual(['id', 'name']);
-            });
+            const result = await service.getProducers(dto);
+
+            expect(repo.getAll).toHaveBeenCalledWith(dto);
+            expect(result).toEqual(repoResp);
+        });
+
+        it('should return empty payload when repository returns no items', async () => {
+            const dto = {
+                order: 'DESC' as const,
+                page: 1,
+                limit: 5,
+                orderBy: ProducerOrderByEnum.CREATED_AT,
+            };
+
+            const repoResp = {
+                items: [] as Producer[],
+                total: 0,
+                totalPages: 0,
+                page: dto.page,
+                limit: dto.limit,
+                orderBy: dto.orderBy,
+                order: dto.order,
+            };
+
+            (repo.getAll as jest.Mock).mockResolvedValue(repoResp);
+
+            const result = await service.getProducers(dto);
+
+            expect(repo.getAll).toHaveBeenCalledWith(dto);
+            expect(result).toEqual(repoResp);
+        });
+
+        it('should work with no params (use defaults) and return repository response', async () => {
+            const dto = {} as any;
+
+            const repoResp = {
+                items: [] as Producer[],
+                total: 0,
+                totalPages: 0,
+                page: 1,
+                limit: 10,
+                orderBy: ProducerOrderByEnum.CREATED_AT,
+                order: 'DESC' as const,
+            };
+
+            (repo.getAll as jest.Mock).mockResolvedValue(repoResp);
+
+            const result = await service.getProducers(dto);
+
+            expect(repo.getAll).toHaveBeenCalledWith(dto);
+            expect(result).toEqual(repoResp);
         });
     });
 
@@ -423,9 +464,9 @@ describe('ProducersService', () => {
                 documentType: DocumentType.CPF,
                 document: '12345678901',
                 name: 'Alice',
-                created_at: new Date(),
-                updated_at: new Date(),
-                deleted_at: null as any,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+                deletedAt: null as any,
             } as Producer;
             (repo.getById as jest.Mock).mockResolvedValue(producer);
 

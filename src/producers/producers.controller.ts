@@ -1,9 +1,10 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query } from "@nestjs/common";
 import { ProducersService } from "./producers.service";
 import { CreateProducerBodyDto } from "./dtos/create-producer-body.dto";
 import { FindProducerByIdParamsDto } from "./dtos/find-producer-by-id-params.dto";
 import { UpdateProducerBodyDto } from "./dtos/update-producer-body.dto";
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiParam, ApiTags } from "@nestjs/swagger";
+import { ProducersQueryDto } from "./dtos/producers-query.dto";
 
 @ApiTags('Producers')
 @Controller('producers')
@@ -39,8 +40,10 @@ export class ProducersController {
                     statusCode: 201,
                     message: 'Producer successfully created',
                     data: {
-                        id: '0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a',
-                        name: 'jane doe',
+                        producer: {
+                            id: '0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a',
+                            name: 'jane doe',
+                        }
                     },
                 },
             },
@@ -97,7 +100,7 @@ export class ProducersController {
         return {
             statusCode: HttpStatus.CREATED,
             message: 'Producer successfully created',
-            data: producer
+            data: { producer }
         }
     }
 
@@ -105,39 +108,49 @@ export class ProducersController {
     @ApiOperation({
         summary: 'Listar todos os produtores',
         description:
-            'Endpoint para obter a lista de todos os produtores (agricultores) cadastrados no sistema.',
+            'Retorna a lista paginada de produtores (agricultores) cadastrados no sistema, com suporte a paginação e ordenação.',
     })
     @ApiOkResponse({
-        description: 'Lista de produtores encontrada com sucesso.',
-        examples: {
-            success: {
-                summary: 'Sucesso',
-                value: {
-                    statusCode: 200,
-                    message: 'Producers successfully found',
-                    data: [
-                        {
-                            id: '0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a',
-                            name: 'jane doe',
-                        },
-                        {
-                            id: '1cf2b2e8-7b8d-55b8-9f08-1b3c1a9f1d2b',
-                            name: 'john doe',
-                        },
-                    ],
+        description: 'Lista de produtores retornada com sucesso',
+        schema: {
+            example: {
+                statusCode: 200,
+                message: 'Producers successfully retrieved',
+                data: {
+                    producers: {
+                        items: [
+                            {
+                                id: '1015ce5b-4563-466b-a514-de157fde9b9a',
+                                documentType: 'CPF',
+                                document: '14805924713',
+                                name: 'igor 1',
+                                createdAt: '2025-08-29T21:53:50.964Z',
+                                updatedAt: '2025-08-29T21:53:50.964Z',
+                                deletedAt: null,
+                            },
+                        ],
+                        total: 1,
+                        totalPages: 1,
+                        page: 1,
+                        limit: 10,
+                        order: 'DESC',
+                        orderBy: 'createdAt',
+                    },
                 },
             },
         },
     })
     @Get('/')
-    async findAllProducers() {
-        const producer = await this.service.getAllProducers()
+    async findProducers(
+        @Query() { order, orderBy, page, limit }: ProducersQueryDto
+    ) {
+        const producers = await this.service.getProducers({ order, orderBy, page, limit });
 
         return {
             statusCode: HttpStatus.OK,
-            message: 'Producers successfully found',
-            data: producer
-        }
+            message: 'Producers successfully retrieved',
+            data: { producers },
+        };
     }
 
 
@@ -161,13 +174,21 @@ export class ProducersController {
                     statusCode: 200,
                     message: 'Producer successfully found',
                     data: {
-                        id: '0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a',
-                        document: '12345678909',
-                        documentType: 'CPF',
-                        name: 'jane doe',
-                        created_at: '2025-08-27T17:10:20.000Z',
-                        updated_at: '2025-08-27T17:15:00.000Z',
-                        deleted_at: null,
+                        producer: {
+                            id: '1015ce5b-4563-466b-a514-de157fde9b9a',
+                            documentType: 'CPF',
+                            document: '14805924713',
+                            name: 'igor 1',
+                            properties: [
+                                {
+                                    id: 'a4527ea2-915e-4729-ad30-1de710adabbf',
+                                    name: 'Green Valley Farm',
+                                },
+                            ],
+                            createdAt: '2025-08-29T21:53:50.964Z',
+                            updatedAt: '2025-08-29T21:53:50.964Z',
+                            deletedAt: null,
+                        },
                     },
                 },
             },
@@ -216,7 +237,7 @@ export class ProducersController {
         return {
             statusCode: HttpStatus.OK,
             message: 'Producer successfully found',
-            data: producer
+            data: { producer }
         }
     }
 
@@ -264,13 +285,15 @@ export class ProducersController {
                     statusCode: 200,
                     message: 'Producer successfully updated',
                     data: {
-                        id: '0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a',
-                        document: '12345678909',
-                        documentType: 'CPF',
-                        name: 'Acme Farming Co. (Updated)',
-                        created_at: '2025-08-27T17:10:20.000Z',
-                        updated_at: '2025-08-27T18:20:00.000Z',
-                        deleted_at: null,
+                        producer: {
+                            id: '0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a',
+                            document: '12345678909',
+                            documentType: 'CPF',
+                            name: 'Acme Farming Co. (Updated)',
+                            created_at: '2025-08-27T17:10:20.000Z',
+                            updated_at: '2025-08-27T18:20:00.000Z',
+                            deleted_at: null,
+                        }
                     },
                 },
             },
@@ -361,7 +384,7 @@ export class ProducersController {
         return {
             statusCode: HttpStatus.OK,
             message: 'Producer successfully updated',
-            data: producer
+            data: { producer }
         }
     }
 
