@@ -3,6 +3,8 @@ import type { IHarvestRepository } from "./repositories/harvest-repository.inter
 import { HarvestRepository } from "./repositories/implementation/harvest.repository";
 import { CreateHarvestDto } from "./dtos/create-harvest.dto";
 import { Harvest } from "./harvest.entity";
+import { FindAllHarvestsRespDto } from "./dtos/find-all-harvests-resp.dto";
+import { FindAllHarvestsDto } from "./dtos/find-all-harvests.dto";
 
 @Injectable()
 export class HarvestsService {
@@ -30,23 +32,12 @@ export class HarvestsService {
         return harvest;
     }
 
-    async findAll(): Promise<Partial<Harvest>[]> {
-        const harvests = await this.harvestRepository.findAll();
-
-        return harvests.map(({
-            id,
-            label,
-            year,
-            startDate,
-            endDate
-        }) => {
-            return {
-                id,
-                label,
-                year,
-                startDate,
-                endDate
-            }
-        })
+    async findHarvests({
+        order,
+        page,
+        limit,
+        orderBy
+    }: FindAllHarvestsDto): Promise<FindAllHarvestsRespDto> {
+        return await this.harvestRepository.findAll({ order, page, limit, orderBy });
     }
 }

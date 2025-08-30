@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateHarvestDto } from '../../dtos/create-harvest.dto';
 import { Harvest } from '../../harvest.entity';
 import { Repository } from 'typeorm';
+import { HarvestOrderByEnum } from '../../enum/harvest-order-by.enum';
+import { FindAllHarvestsRespDto } from '../../dtos/find-all-harvests-resp.dto';
+import { FindAllHarvestsDto } from '../../dtos/find-all-harvests.dto';
 
 @Injectable()
 export class HarvestRepository {
@@ -31,10 +34,29 @@ export class HarvestRepository {
     }
 
     async findById(id: string): Promise<Harvest | null> {
-        return await this.repo.findOne({ where: { id } });
+        return await this.repo.findOne({ where: { id }, relations: ['propertyCrops'] });
     }
 
-    async findAll(): Promise<Harvest[]> {
-        return await this.repo.find({ order: { year: 'DESC', label: 'ASC' } });
+    async findAll({
+        order = 'DESC',
+        page = 1,
+        limit = 10,
+        orderBy = HarvestOrderByEnum.YEAR,
+    }: FindAllHarvestsDto): Promise<FindAllHarvestsRespDto> {
+        const [items, total] = await this.repo.findAndCount({
+            order: { [orderBy]: order },
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+
+        return {
+            items,
+            total,
+            totalPages: Math.ceil(total / limit),
+            page,
+            limit,
+            order,
+            orderBy,
+        };
     }
 }

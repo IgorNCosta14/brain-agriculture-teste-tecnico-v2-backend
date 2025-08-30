@@ -4,6 +4,9 @@ import { IHarvestRepository } from './repositories/harvest-repository.interface'
 import { HarvestRepository } from './repositories/implementation/harvest.repository';
 import { Harvest } from './harvest.entity';
 import { BadRequestException, NotFoundException } from '@nestjs/common';
+import { HarvestOrderByEnum } from './enum/harvest-order-by.enum';
+import { FindAllHarvestsRespDto } from './dtos/find-all-harvests-resp.dto';
+import { FindAllHarvestsDto } from './dtos/find-all-harvests.dto';
 
 describe('HarvestsService', () => {
     let service: HarvestsService;
@@ -140,65 +143,127 @@ describe('HarvestsService', () => {
         });
     });
 
-    describe('findAll', () => {
-        it('should return empty list when no harvests exist', async () => {
-            repo.findAll.mockResolvedValue([]);
+    describe('findHarvests', () => {
+        it('should return paginated harvests with given params', async () => {
+            const params = {
+                order: 'DESC' as const,
+                page: 2,
+                limit: 10,
+                orderBy: HarvestOrderByEnum.YEAR,
+            };
 
-            const result = await service.findAll();
+            const resp = {
+                items: [
+                    {
+                        id: 'h-1',
+                        label: 'Safra 2025',
+                        year: 2025,
+                        startDate: '2025-01-01',
+                        endDate: '2025-12-31',
+                        propertyCrops: [],
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    },
+                    {
+                        id: 'h-2',
+                        label: 'Safra 2024',
+                        year: 2024,
+                        startDate: '2024-01-01',
+                        endDate: '2024-12-31',
+                        propertyCrops: [],
+                        createdAt: new Date(),
+                        updatedAt: new Date(),
+                    },
+                ] as Harvest[],
+                total: 12,
+                totalPages: 2,
+                page: 2,
+                limit: 10,
+                orderBy: HarvestOrderByEnum.YEAR,
+                order: 'DESC' as const,
+            } satisfies FindAllHarvestsRespDto;
 
-            expect(repo.findAll).toHaveBeenCalled();
-            expect(result).toEqual([]);
+            repo.findAll.mockResolvedValue(resp);
+
+            const result = await service.findHarvests(params);
+
+            expect(repo.findAll).toHaveBeenCalledWith(params);
+            expect(result).toEqual(resp);
         });
 
-        it('should map to partials with id, label, year, startDate, endDate', async () => {
-            const items: Harvest[] = [
-                {
-                    id: 'a1',
-                    label: 'Safra 2025',
-                    year: 2025,
-                    startDate: '2025-01-01',
-                    endDate: '2025-12-31',
-                    propertyCrops: [],
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                },
-                {
-                    id: 'b2',
-                    label: 'Safra 2024',
-                    year: 2024,
-                    startDate: '2024-01-01',
-                    endDate: '2024-12-31',
-                    propertyCrops: [],
-                    createdAt: new Date(),
-                    updatedAt: new Date(),
-                },
-            ];
+        it('should return empty list when repository finds nothing', async () => {
+            const params = {} as any;
 
-            repo.findAll.mockResolvedValue(items);
+            const resp = {
+                items: [] as Harvest[],
+                total: 0,
+                totalPages: 0,
+                page: 1,
+                limit: 10,
+                orderBy: HarvestOrderByEnum.CREATED_AT,
+                order: 'ASC' as const,
+            } satisfies FindAllHarvestsRespDto;
 
-            const result = await service.findAll();
+            repo.findAll.mockResolvedValue(resp);
 
-            expect(repo.findAll).toHaveBeenCalled();
-            expect(result).toEqual([
-                {
-                    id: 'a1',
-                    label: 'Safra 2025',
-                    year: 2025,
-                    startDate: '2025-01-01',
-                    endDate: '2025-12-31',
-                },
-                {
-                    id: 'b2',
-                    label: 'Safra 2024',
-                    year: 2024,
-                    startDate: '2024-01-01',
-                    endDate: '2024-12-31',
-                },
-            ]);
+            const result = await service.findHarvests(params);
 
-            result.forEach((h) => {
-                expect(Object.keys(h)).toEqual(['id', 'label', 'year', 'startDate', 'endDate']);
-            });
+            expect(repo.findAll).toHaveBeenCalledWith(params);
+            expect(result).toEqual(resp);
+        });
+
+        it('should pass through parameters unchanged to repository', async () => {
+            const params = {
+                order: 'ASC' as const,
+                page: 3,
+                limit: 5,
+                orderBy: HarvestOrderByEnum.LABEL,
+            };
+
+            const resp = {
+                items: [] as Harvest[],
+                total: 0,
+                totalPages: 0,
+                page: 3,
+                limit: 5,
+                orderBy: HarvestOrderByEnum.LABEL,
+                order: 'ASC' as const,
+            } satisfies FindAllHarvestsRespDto;
+
+            repo.findAll.mockResolvedValue(resp);
+
+            const result = await service.findHarvests(params);
+
+            expect(repo.findAll).toHaveBeenCalledTimes(1);
+            expect(repo.findAll).toHaveBeenCalledWith(params);
+            expect(result).toEqual(resp);
+        });
+
+        it('should pass through parameters unchanged to repository', async () => {
+            const params: FindAllHarvestsDto = {
+                order: 'ASC',
+                page: 3,
+                limit: 5,
+                orderBy: HarvestOrderByEnum.LABEL,
+            };
+
+            const resp: FindAllHarvestsRespDto = {
+                items: [] as Harvest[],
+                total: 0,
+                totalPages: 0,
+                page: 3,
+                limit: 5,
+                orderBy: HarvestOrderByEnum.LABEL,
+                order: 'ASC',
+            };
+
+            repo.findAll.mockResolvedValue(resp);
+
+            const result = await service.findHarvests(params);
+
+            expect(repo.findAll).toHaveBeenCalledTimes(1);
+            expect(repo.findAll).toHaveBeenCalledWith(params);
+            expect(result).toEqual(resp);
         });
     });
 });

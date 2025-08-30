@@ -1,8 +1,10 @@
-import { Body, Controller, Get, HttpStatus, Param, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpStatus, Param, Post, Query } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HarvestsService } from './harvests.service';
 import { CreateHarvestBodyDto } from './dtos/create-harvest-body.dto';
 import { HarvestIdParamsDto } from './dtos/harvest-id-params.dto';
+import { HarvestOrderByEnum } from './enum/harvest-order-by.enum';
+import { HarvestsQueryDto } from './dtos/harvests-query.dto';
 
 @ApiTags('Harvests')
 @Controller('harvests')
@@ -105,7 +107,7 @@ export class HarvestsController {
     @ApiOperation({
         summary: 'Listar todas as safras',
         description:
-            'Retorna a lista de todas as safras cadastradas, ordenadas por ano (desc) e label (asc).',
+            'Retorna a lista de safras com suporte a paginação e ordenação (ASC/DESC, por ano, rótulo ou data de criação).',
     })
     @ApiResponse({
         status: 200,
@@ -117,55 +119,99 @@ export class HarvestsController {
                 data: {
                     harvests: [
                         {
-                            id: 'a1',
-                            label: 'Safra 2025',
+                            id: '7d7a6a8e-1b2c-4d5e-9f01-23456789abcd',
+                            label: 'Safra 2024/2025',
                             year: 2025,
-                            startDate: '2025-01-01',
-                            endDate: '2025-12-31',
+                            startDate: '2024-09-01',
+                            endDate: '2025-08-31',
                         },
                         {
-                            id: 'b2',
-                            label: 'Safra 2024',
+                            id: '1a2b3c4d-5e6f-7081-92a3-b4c5d6e7f809',
+                            label: 'Safra 2023/2024',
                             year: 2024,
-                            startDate: '2024-01-01',
-                            endDate: '2024-12-31',
+                            startDate: '2023-09-01',
+                            endDate: '2024-08-31',
                         },
                     ],
+                },
+                meta: {
+                    page: 1,
+                    limit: 10,
+                    total: 2,
+                    totalPages: 1,
+                    order: 'DESC',
+                    orderBy: 'year',
                 },
             },
         },
     })
-    async findAllHarvests() {
-        const harvests = await this.service.findAll();
+    @ApiQuery({
+        name: 'order',
+        required: false,
+        enum: ['ASC', 'DESC'],
+        description: 'Direção da ordenação (padrão: DESC)',
+        example: 'DESC',
+    })
+    @ApiQuery({
+        name: 'orderBy',
+        required: false,
+        enum: HarvestOrderByEnum,
+        description: 'Campo de ordenação (padrão: year)',
+        example: HarvestOrderByEnum.YEAR,
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Número da página para paginação (padrão: 1)',
+        example: 1,
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Quantidade de itens por página (padrão: 10, máximo: 100)',
+        example: 10,
+    })
+    async findAllHarvests(
+        @Query() { order, orderBy, page, limit }: HarvestsQueryDto,
+    ) {
+        const result = await this.service.findHarvests({ order, orderBy, page, limit });
 
         return {
             statusCode: HttpStatus.OK,
             message: 'Harvests successfully retrieved',
-            data: { harvests },
+            data: { harvests: result.items },
+            meta: result,
         };
     }
 
     @Get('/:id')
     @ApiOperation({
-        summary: 'Buscar safra por ID',
+        summary: 'Buscar cultura por ID',
         description:
-            'Retorna uma safra específica pelo seu identificador (UUID). Caso não exista, retorna 404.',
+            'Retorna uma cultura específica pelo seu identificador (UUID). Caso não exista, retorna 404.',
     })
     @ApiResponse({
         status: 200,
-        description: 'Safra encontrada com sucesso',
+        description: 'Cultura encontrada com sucesso',
         schema: {
             example: {
                 statusCode: 200,
-                message: 'Harvest successfully retrieved',
+                message: 'Crop successfully retrieved',
                 data: {
-                    harvest: {
-                        id: '2f8f4a19-6c4d-4d7e-9e2c-7d1a9e9f0b12',
-                        label: 'Safra 2025',
-                        year: 2025,
-                        startDate: '2025-01-01',
-                        endDate: '2025-12-31',
-                        createdAt: '2025-08-28T12:34:56.789Z',
+                    crop: {
+                        id: '6c6212e8-eff6-48ab-879b-dec77e5c585d',
+                        name: 'Milho',
+                        propertyCrops: [
+                            {
+                                id: '841a07b8-5eae-4c99-b60f-c02e03df4a6b',
+                                createdAt: '2025-08-30T09:51:38.909Z',
+                                updatedAt: '2025-08-30T09:51:38.909Z',
+                                deletedAt: null,
+                            },
+                        ],
+                        createdAt: '2025-08-28T22:57:02.968Z',
                     },
                 },
             },
@@ -173,7 +219,7 @@ export class HarvestsController {
     })
     @ApiResponse({
         status: 404,
-        description: 'Safra não encontrada',
+        description: 'Cultura não encontrada',
         content: {
             'application/json': {
                 examples: {
@@ -181,7 +227,7 @@ export class HarvestsController {
                         summary: 'ID não encontrado',
                         value: {
                             statusCode: 404,
-                            message: 'Harvest not found',
+                            message: 'Crop not found',
                             error: 'Not Found',
                         },
                     },
