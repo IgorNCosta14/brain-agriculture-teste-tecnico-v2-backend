@@ -62,10 +62,6 @@ export class PropertyCropRepository implements IPropertycropRepository {
 
         const orderColumnMap: Record<PropertyCropOrderByEnum, string> = {
             [PropertyCropOrderByEnum.CREATED_AT]: 'pc.createdAt',
-            // [PropertyCropOrderByEnum.UPDATED_AT]: 'pc.updatedAt',
-            // [PropertyCropOrderByEnum.PROPERTY_NAME]: 'property.name',
-            // [PropertyCropOrderByEnum.HARVEST_YEAR]: 'harvest.year',
-            // [PropertyCropOrderByEnum.CROP_NAME]: 'crop.name',
         };
 
         const orderColumn = orderColumnMap[orderBy] ?? 'pc.createdAt';

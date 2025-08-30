@@ -2,9 +2,10 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query } from "@
 import { PropertyCropService } from "./property-crops.service";
 import { CreatePropertyCropBodyDto } from "./dtos/create-property-crop-body.dto";
 import { FindPropertyCropByIdParamsDto } from "./dtos/find-property-crop-by-id-params.dto";
-import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiResponse } from "@nestjs/swagger";
+import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PropertyCropsQueryDto } from "./dtos/property-crops-query.dto";
 
+@ApiTags('Property crops')
 @Controller('property-crops')
 export class PropertyCropController {
     constructor(
@@ -259,7 +260,7 @@ export class PropertyCropController {
 
     @Delete('/:id')
     @ApiOperation({
-        summary: 'Excluir vínculo por ID',
+        summary: 'Excluir vínculo por ID (soft delete)',
         description:
             'Exclui um registro de vínculo (propriedade/safra/cultura) pelo seu identificador.',
     })

@@ -738,7 +738,6 @@ describe('PropertiesService', () => {
 
             (repo.findAll as jest.Mock).mockResolvedValue(paged);
 
-            // service.getProperty apenas repassa; repo aplica defaults
             const result = await service.getProperty({} as any);
 
             expect(repo.findAll).toHaveBeenCalledWith({});
