@@ -8,5 +8,5 @@ export interface IProducerRepository {
     getByName(name: string): Promise<Producer | null>;
     getAll(): Promise<Producer[]>;
     getByDocument(document: string): Promise<Producer | null>;
-    softDelete(id: string): void;
+    delete(id: string): void;
 }

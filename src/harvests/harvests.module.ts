@@ -9,6 +9,7 @@ import { HarvestsService } from './harvests.service';
     imports: [TypeOrmModule.forFeature([Harvest])],
     controllers: [HarvestsController],
     providers: [HarvestsService, HarvestRepository],
+    exports: [HarvestsService, HarvestRepository]
 })
 
 export class HarvestsModule { }
