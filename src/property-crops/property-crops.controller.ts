@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, HttpStatus, Param, Post } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Query } from "@nestjs/common";
 import { PropertyCropService } from "./property-crops.service";
 import { CreatePropertyCropBodyDto } from "./dtos/create-property-crop-body.dto";
 import { FindPropertyCropByIdParamsDto } from "./dtos/find-property-crop-by-id-params.dto";
 import { ApiBadRequestResponse, ApiBody, ApiCreatedResponse, ApiOkResponse, ApiOperation, ApiParam, ApiResponse } from "@nestjs/swagger";
+import { PropertyCropsQueryDto } from "./dtos/property-crops-query.dto";
 
 @Controller('property-crops')
 export class PropertyCropController {
@@ -83,66 +84,87 @@ export class PropertyCropController {
     @ApiOperation({
         summary: 'Listar vínculos de culturas',
         description:
-            'Retorna todos os registros que vinculam propriedades, safras e culturas.',
+            'Retorna a lista paginada dos registros que vinculam propriedades, safras e culturas, com suporte a paginação, ordenação e filtros por IDs.',
     })
     @ApiOkResponse({
-        description: 'Lista retornada com sucesso.',
+        description: 'Lista de vínculos retornada com sucesso',
         schema: {
             example: {
                 statusCode: 200,
                 message: 'Property crops successfully found',
                 data: {
-                    propertyCrops: [
-                        {
-                            id: '841a07b8-5eae-4c99-b60f-c02e03df4a6b',
-                            property: {
-                                id: 'a4527ea2-915e-4729-ad30-1de710adabbf',
-                                name: 'Green Valley Farm',
-                                city: 'Uberlândia',
-                                state: 'MG',
-                                totalAreaHa: '1500.20',
-                                arableAreaHa: '1000.20',
-                                vegetationAreaHa: '500.00',
-                                cep: '38400100',
-                                complement: 'Near BR-050',
-                                latitude: '-18.918600',
-                                longitude: '-48.277200',
-                                createdAt: '2025-08-29T23:49:20.105Z',
-                                updatedAt: '2025-08-29T23:49:20.105Z',
+                    propertyCrops: {
+                        items: [
+                            {
+                                id: '841a07b8-5eae-4c99-b60f-c02e03df4a6b',
+                                property: {
+                                    id: 'a4527ea2-915e-4729-ad30-1de710adabbf',
+                                    name: 'Green Valley Farm',
+                                    city: 'Uberlândia',
+                                    state: 'MG',
+                                    totalAreaHa: '1500.20',
+                                    arableAreaHa: '1000.20',
+                                    vegetationAreaHa: '500.00',
+                                    cep: '38400100',
+                                    complement: 'Near BR-050',
+                                    latitude: '-18.918600',
+                                    longitude: '-48.277200',
+                                    createdAt: '2025-08-29T23:49:20.105Z',
+                                    updatedAt: '2025-08-29T23:49:20.105Z',
+                                    deletedAt: null,
+                                },
+                                harvest: {
+                                    id: '0f6107bc-2bc0-4125-8c16-b6030df20d4b',
+                                    label: '2ª Safra 2025',
+                                    year: 2025,
+                                    startDate: '2025-01-29',
+                                    endDate: '2025-04-30',
+                                    createdAt: '2025-08-29T16:19:34.118Z',
+                                    updatedAt: '2025-08-29T16:19:34.118Z',
+                                },
+                                crop: {
+                                    id: '6c6212e8-eff6-48ab-879b-dec77e5c585d',
+                                    name: 'Milho',
+                                    createdAt: '2025-08-28T22:57:02.968Z',
+                                },
+                                createdAt: '2025-08-30T09:51:38.909Z',
+                                updatedAt: '2025-08-30T09:51:38.909Z',
                                 deletedAt: null,
                             },
-                            harvest: {
-                                id: '0f6107bc-2bc0-4125-8c16-b6030df20d4b',
-                                label: '2ª Safra 2025',
-                                year: 2025,
-                                startDate: '2025-01-29',
-                                endDate: '2025-04-30',
-                                createdAt: '2025-08-29T16:19:34.118Z',
-                                updatedAt: '2025-08-29T16:19:34.118Z',
-                            },
-                            crop: {
-                                id: '6c6212e8-eff6-48ab-879b-dec77e5c585d',
-                                name: 'Milho',
-                                createdAt: '2025-08-28T22:57:02.968Z',
-                            },
-                            createdAt: '2025-08-30T09:51:38.909Z',
-                            updatedAt: '2025-08-30T09:51:38.909Z',
-                            deletedAt: null,
-                        },
-                    ],
+                        ],
+                        total: 1,
+                        totalPages: 1,
+                        page: 1,
+                        limit: 10,
+                        order: 'DESC',
+                        orderBy: 'createdAt',
+                    },
                 },
             },
         },
     })
-    async getAllPpropertyCrop() {
-        const propertyCrops = await this.service.getAllProperties();
+    async getPropertyCrops(
+        @Query() { order, orderBy, page, limit, propertyId, harvestId, cropId }: PropertyCropsQueryDto,
+    ) {
+        const propertyCrops = await this.service.getProperties({
+            order,
+            page,
+            limit,
+            orderBy,
+            propertyId,
+            harvestId,
+            cropId
+        });
 
         return {
             statusCode: HttpStatus.OK,
             message: 'Property crops successfully found',
-            data: { propertyCrops }
-        }
+            data: {
+                propertyCrops,
+            },
+        };
     }
+
 
     @Get('/:id')
     @ApiOperation({

@@ -277,27 +277,78 @@ describe('PropertyCropService', () => {
         });
     });
 
-    describe('getAllProperties', () => {
-        it('should return empty array when no propertyCrops exist', async () => {
-            (repo.findAll as jest.Mock).mockResolvedValue([]);
+    describe('getProperties', () => {
+        it('should call repository with provided filters/pagination and return response', async () => {
+            const dto = {
+                order: 'DESC' as const,
+                page: 2,
+                limit: 25,
+                orderBy: 'createdAt' as any,
+                propertyId: 'prop-1',
+                harvestId: 'harv-1',
+                cropId: 'crop-1',
+            };
 
-            const result = await service.getAllProperties();
+            const resp = {
+                items: [{ id: 'pc-1' }] as any,
+                total: 1,
+                totalPages: 1,
+                page: dto.page,
+                limit: dto.limit,
+                orderBy: dto.orderBy,
+                order: dto.order,
+            };
 
-            expect(repo.findAll).toHaveBeenCalled();
-            expect(result).toEqual([]);
+            (repo.findAll as jest.Mock).mockResolvedValue(resp);
+
+            const result = await service.getProperties(dto as any);
+
+            expect(repo.findAll).toHaveBeenCalledWith({
+                order: dto.order,
+                page: dto.page,
+                limit: dto.limit,
+                orderBy: dto.orderBy,
+                propertyId: dto.propertyId,
+                harvestId: dto.harvestId,
+                cropId: dto.cropId,
+            });
+
+            expect(result).toBe(resp);
         });
 
-        it('should return array of propertyCrops when they exist', async () => {
-            const propertyCrops = [
-                { id: 'pc-1' } as PropertyCrop,
-                { id: 'pc-2' } as PropertyCrop,
-            ];
-            (repo.findAll as jest.Mock).mockResolvedValue(propertyCrops);
+        it('should work with empty filters and return paginated response', async () => {
+            const dto = {
+                order: 'ASC' as const,
+                page: 1,
+                limit: 10,
+                orderBy: 'updatedAt' as any,
+            };
 
-            const result = await service.getAllProperties();
+            const resp = {
+                items: [] as any[],
+                total: 0,
+                totalPages: 0,
+                page: dto.page,
+                limit: dto.limit,
+                orderBy: dto.orderBy,
+                order: dto.order,
+            };
 
-            expect(repo.findAll).toHaveBeenCalled();
-            expect(result).toBe(propertyCrops);
+            (repo.findAll as jest.Mock).mockResolvedValue(resp);
+
+            const result = await service.getProperties(dto as any);
+
+            expect(repo.findAll).toHaveBeenCalledWith({
+                order: dto.order,
+                page: dto.page,
+                limit: dto.limit,
+                orderBy: dto.orderBy,
+                propertyId: undefined,
+                harvestId: undefined,
+                cropId: undefined,
+            });
+
+            expect(result).toEqual(resp);
         });
     });
 

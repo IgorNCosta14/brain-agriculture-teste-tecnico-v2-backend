@@ -7,6 +7,8 @@ import { HarvestsService } from "../harvests/harvests.service";
 import { CropsService } from "../crops/crops.service";
 import { Property } from "../properties/property.entity";
 import { createPropertyCropServiceDto } from "./dtos/create-property-crop-service.dto";
+import { FindAllPropertyCropsDto } from "./dtos/find-all-property-crops.dto";
+import { FindAllPropertyCropsRespDto } from "./dtos/find-all-property-crops-resp.dto";
 
 @Injectable()
 export class PropertyCropService {
@@ -64,8 +66,24 @@ export class PropertyCropService {
         return propertyCrop;
     }
 
-    async getAllProperties(): Promise<PropertyCrop[]> {
-        const propertyCrops = await this.repo.findAll();
+    async getProperties({
+        order,
+        page,
+        limit,
+        orderBy,
+        propertyId,
+        harvestId,
+        cropId,
+    }: FindAllPropertyCropsDto): Promise<FindAllPropertyCropsRespDto> {
+        const propertyCrops = await this.repo.findAll({
+            order,
+            page,
+            limit,
+            orderBy,
+            propertyId,
+            harvestId,
+            cropId,
+        });
 
         return propertyCrops;
     }
