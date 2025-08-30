@@ -4,6 +4,9 @@ import { CropsService } from './crops.service';
 import type { ICropRepository } from './repositories/crop-repository.interface';
 import { CropRepository } from './repositories/implementation/crop.repository';
 import { Crop } from './crop.entity';
+import { CropOrderByEnum } from './enum/order-by-values.enum';
+import { FindAllRespDto } from './dtos/find-all-resp.dto';
+import { FindAllDto } from './dtos/find-all.dto';
 
 describe('CropsService', () => {
     let service: CropsService;
@@ -114,45 +117,87 @@ describe('CropsService', () => {
         });
     });
 
-    describe('findAll', () => {
-        it('should return empty list when no crops exist', async () => {
-            (repo.findAll as jest.Mock).mockResolvedValue([]);
+    describe('findCrops', () => {
+        const mockCrop: Crop = {
+            id: '1234',
+            name: 'Wheat',
+            propertyCrops: [],
+            createdAt: new Date('2023-01-01'),
+        } as Crop;
 
-            const result = await service.findAll();
-
-            expect(repo.findAll).toHaveBeenCalled();
-            expect(result).toEqual([]);
+        const createFindAllDto = (
+            overrides?: Partial<FindAllDto>,
+        ): FindAllDto => ({
+            order: 'ASC',
+            page: 1,
+            limit: 10,
+            orderBy: CropOrderByEnum.NAME,
+            ...overrides,
         });
 
-        it('should map crops to { id, name } only', async () => {
-            const crops: Crop[] = [
-                {
-                    id: 'id-1',
-                    name: 'Soybean',
-                    propertyCrops: [],
-                    createdAt: new Date(),
-                } as Crop,
-                {
-                    id: 'id-2',
-                    name: 'Corn',
-                    propertyCrops: [],
-                    createdAt: new Date(),
-                } as Crop,
-            ];
+        const createFindAllRespDto = (
+            overrides?: Partial<FindAllRespDto>,
+        ): FindAllRespDto => ({
+            items: [mockCrop],
+            total: 1,
+            totalPages: 1,
+            page: 1,
+            limit: 10,
+            order: 'ASC',
+            orderBy: CropOrderByEnum.NAME,
+            ...overrides,
+        });
 
-            (repo.findAll as jest.Mock).mockResolvedValue(crops);
+        it('should return paginated crops ordered by NAME', async () => {
+            const dto = createFindAllDto({ orderBy: CropOrderByEnum.NAME });
+            const expected = createFindAllRespDto({ orderBy: CropOrderByEnum.NAME });
 
-            const result = await service.findAll();
+            (repo.findAll as jest.Mock).mockResolvedValue(expected);
 
-            expect(repo.findAll).toHaveBeenCalled();
-            expect(result).toEqual([
-                { id: 'id-1', name: 'Soybean' },
-                { id: 'id-2', name: 'Corn' },
-            ]);
+            const result = await service.findCrops(dto);
 
-            result.forEach((c) => {
-                expect(Object.keys(c)).toEqual(['id', 'name']);
+            expect(repo.findAll).toHaveBeenCalledWith(dto);
+            expect(result).toEqual(expected);
+        });
+
+        it('should return paginated crops ordered by CREATED_AT', async () => {
+            const dto = createFindAllDto({ orderBy: CropOrderByEnum.CREATED_AT });
+            const expected = createFindAllRespDto({ orderBy: CropOrderByEnum.CREATED_AT });
+
+            (repo.findAll as jest.Mock).mockResolvedValue(expected);
+
+            const result = await service.findCrops(dto);
+
+            expect(repo.findAll).toHaveBeenCalledWith(dto);
+            expect(result).toEqual(expected);
+        });
+
+        it('should return paginated crops with default pagination', async () => {
+            const dto = createFindAllDto({ page: undefined, limit: undefined });
+            const expected = createFindAllRespDto({ page: 1, limit: 10 });
+
+            (repo.findAll as jest.Mock).mockResolvedValue(expected);
+
+            const result = await service.findCrops(dto);
+
+            expect(repo.findAll).toHaveBeenCalledWith(dto);
+            expect(result).toEqual(expected);
+        });
+
+        it('should handle empty result set', async () => {
+            const dto = createFindAllDto();
+            const expected = createFindAllRespDto({
+                items: [],
+                total: 0,
+                totalPages: 0,
             });
+
+            (repo.findAll as jest.Mock).mockResolvedValue(expected);
+
+            const result = await service.findCrops(dto);
+
+            expect(repo.findAll).toHaveBeenCalledWith(dto);
+            expect(result).toEqual(expected);
         });
     });
 });

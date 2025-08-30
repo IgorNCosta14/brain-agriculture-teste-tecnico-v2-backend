@@ -3,6 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Crop } from '../../crop.entity';
 import { Repository } from 'typeorm';
 import { ICropRepository } from '../crop-repository.interface';
+import { FindAllDto } from '../../dtos/find-all.dto';
+import { FindAllRespDto } from '../../dtos/find-all-resp.dto';
+import { CropOrderByEnum } from '../../enum/order-by-values.enum';
 
 @Injectable()
 export class CropRepository implements ICropRepository {
@@ -18,14 +21,34 @@ export class CropRepository implements ICropRepository {
     }
 
     async findById(id: string): Promise<Crop | null> {
-        return await this.repo.findOne({ where: { id } });
+        return await this.repo.findOne({ where: { id }, relations: ['propertyCrops'] });
     }
 
     async findByName(name: string): Promise<Crop | null> {
         return await this.repo.findOne({ where: { name } });
     }
 
-    async findAll(): Promise<Crop[]> {
-        return this.repo.find({ order: { name: 'ASC' } });
+    async findAll({
+        order = 'ASC',
+        page = 1,
+        limit = 10,
+        orderBy = CropOrderByEnum.NAME
+    }: FindAllDto): Promise<FindAllRespDto> {
+        const [items, total] = await this.repo.findAndCount({
+            order: { [orderBy]: order },
+            skip: (page - 1) * limit,
+            take: limit,
+        });
+
+        return {
+            items,
+            total,
+            totalPages: Math.ceil(total / limit),
+            page,
+            limit,
+            order,
+            orderBy
+        };
     }
+
 }

@@ -1,8 +1,10 @@
-import { Body, Controller, Get, HttpStatus, Post, Param } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Post, Param, Query } from '@nestjs/common';
 import { CropsService } from './crops.service';
 import { CreateCropBodyDto } from './dtos/create-crop-body.dto';
 import { CropIdParamsDto } from './dtos/crop-id-params.dto';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { CropsQueryDto } from './dtos/crops-query.dto';
+import { CropOrderByEnum } from './enum/order-by-values.enum';
 
 @ApiTags('Crops')
 @Controller('crops')
@@ -84,8 +86,7 @@ export class CropsController {
     @Get('/')
     @ApiOperation({
         summary: 'Listar todas as culturas',
-        description:
-            'Retorna a lista de todas as culturas cadastradas, contendo apenas o identificador (id) e o nome, em ordem alfabética.',
+        description: 'Retorna a lista de todas as culturas cadastradas com suporte a paginação e ordenação.',
     })
     @ApiResponse({
         status: 200,
@@ -110,11 +111,54 @@ export class CropsController {
                         },
                     ],
                 },
+                meta: {
+                    page: 1,
+                    limit: 10,
+                    total: 3,
+                    totalPages: 1,
+                    order: 'ASC',
+                    orderBy: 'name',
+                },
             },
         },
     })
-    async findAllCrops() {
-        const crops = await this.service.findAll();
+    @ApiQuery({
+        name: 'order',
+        required: false,
+        enum: ['ASC', 'DESC'],
+        description: 'Direção da ordenação (padrão: ASC)',
+        example: 'ASC',
+    })
+    @ApiQuery({
+        name: 'orderBy',
+        required: false,
+        enum: Object.values(CropOrderByEnum),
+        description: 'Campo usado para ordenação (padrão: name)',
+        example: 'name',
+    })
+    @ApiQuery({
+        name: 'page',
+        required: false,
+        type: Number,
+        description: 'Número da página para paginação (padrão: 1)',
+        example: 1,
+    })
+    @ApiQuery({
+        name: 'limit',
+        required: false,
+        type: Number,
+        description: 'Quantidade de itens por página (padrão: 10, máximo: 100)',
+        example: 10,
+    })
+    async findCrops(
+        @Query() { order, page, limit, orderBy }: CropsQueryDto
+    ) {
+        const crops = await this.service.findCrops({
+            order,
+            page,
+            limit,
+            orderBy
+        });
 
         return {
             statusCode: HttpStatus.OK,

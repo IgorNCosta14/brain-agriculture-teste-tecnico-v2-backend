@@ -2,6 +2,8 @@ import { Injectable, ConflictException, NotFoundException, Inject } from '@nestj
 import type { ICropRepository } from './repositories/crop-repository.interface';
 import { Crop } from './crop.entity';
 import { CropRepository } from './repositories/implementation/crop.repository';
+import { FindAllDto } from './dtos/find-all.dto';
+import { FindAllRespDto } from './dtos/find-all-resp.dto';
 
 @Injectable()
 export class CropsService {
@@ -34,11 +36,17 @@ export class CropsService {
         return crop;
     }
 
-    async findAll(): Promise<{ id: string; name: string }[]> {
-        const crops = await this.cropRepository.findAll();
-
-        return crops.map(({ id, name }) => ({
-            id, name
-        }));
+    async findCrops({
+        order,
+        page,
+        limit,
+        orderBy
+    }: FindAllDto): Promise<FindAllRespDto> {
+        return await this.cropRepository.findAll({
+            order,
+            page,
+            limit,
+            orderBy
+        });
     }
 }
