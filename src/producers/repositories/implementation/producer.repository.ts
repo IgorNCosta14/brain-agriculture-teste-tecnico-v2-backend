@@ -54,8 +54,7 @@ export class ProducerRepository implements IProducerRepository {
         })
     }
 
-
-    async softDelete(id: string): Promise<void> {
+    async delete(id: string): Promise<void> {
         await this.repo.softDelete(id)
     }
 }
