@@ -32,8 +32,8 @@ O sistema permite cadastrar e gerenciar produtores, suas fazendas, safras e cult
 
 ### 1. Clonar o repositório
 ```bash
-git clone https://github.com/seu-usuario/farmhub-api.git
-cd farmhub-api
+git clone git@github.com:IgorNCosta14/brain-agriculture-teste-tecnico-v2-backend.git
+cd brain-agriculture-teste-tecnico-v2-backend
 ```
 
 ### 2. Criar arquivo .env
