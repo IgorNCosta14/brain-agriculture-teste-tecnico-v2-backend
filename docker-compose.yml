@@ -5,13 +5,15 @@ services:
     container_name: farmhub_nest_api
     env_file:
       - .env
+    environment:
+      - DB_HOST=farmhub_db
     ports:
       - "3000:3000"
     depends_on:
       - db
     volumes:
-      - .:/usr/src/app
-      - /usr/src/app/node_modules
+      - .:/app
+      - /app/node_modules
   db:
     image: postgres:16
     container_name: farmhub_db

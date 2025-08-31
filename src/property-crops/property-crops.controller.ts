@@ -176,7 +176,6 @@ export class PropertyCropController {
         };
     }
 
-
     @Get('/:id')
     @ApiOperation({
         summary: 'Buscar vínculo por ID',

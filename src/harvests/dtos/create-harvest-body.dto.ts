@@ -1,6 +1,6 @@
 import { Transform } from "class-transformer";
 import { IsInt, IsNotEmpty, IsString, Matches, Max, Min } from "class-validator";
-import { FormatDate } from "src/utils/fomat-date.util";
+import { FormatDate } from "../../utils/fomat-date.util";
 
 export class CreateHarvestBodyDto {
     @IsString()

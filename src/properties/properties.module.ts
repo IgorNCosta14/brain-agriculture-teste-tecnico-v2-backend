@@ -4,7 +4,7 @@ import { Property } from './property.entity';
 import { PropertiesController } from './properties.controller';
 import { PropertiesService } from './properties.service';
 import { PropertyRepository } from './repositories/implementation/property.repository';
-import { ProducersModule } from 'src/producers/producers.module';
+import { ProducersModule } from '../producers/producers.module';
 
 @Module({
     imports: [TypeOrmModule.forFeature([Property]), ProducersModule],

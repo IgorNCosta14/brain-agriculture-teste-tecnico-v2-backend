@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 import { IsEnum, IsIn, IsInt, IsOptional, Max, Min } from 'class-validator';
-import { PropertyOrderByEnum } from 'src/properties/enum/property-order-by.enum';
+import { PropertyOrderByEnum } from '../enum/property-order-by.enum';
 
 export class PropertiesQueryDto {
     @ApiPropertyOptional({

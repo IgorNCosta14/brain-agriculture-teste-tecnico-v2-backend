@@ -4,7 +4,7 @@ import { Body, Controller, Delete, Get, HttpStatus, Param, Post, Put, Query } fr
 import { CreatePropertyBodyDto } from "./dtos/create-property-body.dto";
 import { UpdatePropertyBodyDto } from "./dtos/update-property-body.dto";
 import { PropertyIdParamsDto } from "./dtos/property-id-params.dto";
-import { PropertiesQueryDto } from "src/properties/dtos/properties-query.dto ";
+import { PropertiesQueryDto } from "./dtos/properties-query.dto";
 
 @ApiTags('Properties')
 @Controller('properties')
