@@ -473,7 +473,7 @@ describe('ProducersService', () => {
             const result = await service.findProducerById(id);
 
             expect(repo.getById).toHaveBeenCalledWith(id);
-            expect(result).toBe(producer);
+            expect(result).toBe({ producer });
         });
     });
 
