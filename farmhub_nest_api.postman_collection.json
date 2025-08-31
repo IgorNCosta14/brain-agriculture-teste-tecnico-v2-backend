@@ -1,0 +1,677 @@
+{
+	"info": {
+		"_postman_id": "305cace5-980f-4e2c-9bc3-1f0b3e39d538",
+		"name": "farmhub_nest_api",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "42563533"
+	},
+	"item": [
+		{
+			"name": "Produers",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"igor 1\",\r\n    \"document\": \"14805924713\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/producers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"producers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/producers",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"producers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/producers/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"producers",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "1015ce5b-4563-466b-a514-de157fde9b9a"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"igor-6\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/producers/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"producers",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "91a94317-3f51-40a5-92f2-fe4b3f3c54ec"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/producers/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"producers",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "91a94317-3f51-40a5-92f2-fe4b3f3c54ec"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Crops",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"Milho 2\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/crops",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"crops"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/crops/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"crops",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "6c6212e8-eff6-48ab-879b-dec77e5c585d"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/crops",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"crops"
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "100",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"disabled": true
+								},
+								{
+									"key": "order",
+									"value": "ASC",
+									"disabled": true
+								},
+								{
+									"key": "orderBy",
+									"value": "createdAt",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Harvests",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"label\": \"2 Safra 2025\",\r\n    \"year\": 2025,\r\n    \"startDate\": \"2025-01-29\",\r\n    \"endDate\": \"2025-04-30\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/harvests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"harvests"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/harvests/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"harvests",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "0f6107bc-2bc0-4125-8c16-b6030df20d4b"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/harvests",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"harvests"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Properties",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"producerId\": \"1015ce5b-4563-466b-a514-de157fde9b9a\",\r\n    \"name\": \"2\",\r\n    \"city\": \"Uberlândia\",\r\n    \"state\": \"ES\",\r\n    \"totalAreaHa\": \"2000\",\r\n    \"arableAreaHa\": \"1052.20\",\r\n    \"vegetationAreaHa\": \"300 \",\r\n    \"cep\": \"38400-100 \",\r\n    \"complement\": \"Near BR-050\",\r\n    \"latitude\": \"-18.9186 \",\r\n    \"longitude\": \"-48.2772\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/properties",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"properties"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"state\": \"ES\",\r\n    \"name\": \"Vit\",\r\n    \"vegetationAreaHa\": \"450\",\r\n    \"producerId\": \"5695e6c5-3369-440f-befc-a72d29245f99\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/properties/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"properties",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "5695e6c5-3369-440f-befc-a72d29245f99"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get properties",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/properties",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"properties"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by id",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/properties/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"properties",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "a4527ea2-915e-4729-ad30-1de710adabbf"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/properties/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"properties",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "5695e6c5-3369-440f-befc-a72d29245f99"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Property crops",
+			"item": [
+				{
+					"name": "Create",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"propertyId\": \"c5175724-5275-497c-be9a-757e710f7d77\",\r\n    \"harvestId\": \"ddcc9d7f-b56e-47eb-91a0-62d16d7f6554\",\r\n    \"cropId\": \"e0b040f5-d316-4186-a90e-817d72752ec5\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/property-crops",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"property-crops"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get all",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/property-crops?cropId=878e8765-1202-4477-ba85-a7065c905353",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"property-crops"
+							],
+							"query": [
+								{
+									"key": "propertyId",
+									"value": "a4527ea2-915e-4729-ad30-1de710adabbf",
+									"disabled": true
+								},
+								{
+									"key": "harvestId",
+									"value": "ddcc9d7f-b56e-47eb-91a0-62d16d7f6554",
+									"disabled": true
+								},
+								{
+									"key": "cropId",
+									"value": "878e8765-1202-4477-ba85-a7065c905353"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/property-crops/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"property-crops",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "7002dd53-a30a-448b-a00c-4b02fbaf186b"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/property-crops/:id",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"property-crops",
+								":id"
+							],
+							"variable": [
+								{
+									"key": "id",
+									"value": "478a4f72-80e5-4ae6-9930-0a7c773a8873"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "Overview",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/reports/overview",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reports",
+								"overview"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Total farms",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/reports/total-farms",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reports",
+								"total-farms"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Total hectares",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/reports/total-hectares",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reports",
+								"total-hectares"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pie by state",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/reports/pie-by-state",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reports",
+								"pie-by-state"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pie by crop",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/reports/pie-by-crop",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reports",
+								"pie-by-crop"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Pie by land use",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/reports/pie-by-land-use",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"reports",
+								"pie-by-land-use"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

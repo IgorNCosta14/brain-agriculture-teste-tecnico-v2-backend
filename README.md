@@ -1,98 +1,82 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🌾 FarmHub API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+API para gerenciamento de produtores rurais, propriedades e culturas, desenvolvida em **NestJS** com **TypeScript**, utilizando **PostgreSQL** como banco de dados e **TypeORM** como ORM.  
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+O sistema permite cadastrar e gerenciar produtores, suas fazendas, safras e culturas plantadas, além de fornecer relatórios consolidados para visualização em dashboards.  
 
-## Description
+## 🚀 Tecnologias
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- [NestJS](https://nestjs.com/)  
+- [TypeScript](https://www.typescriptlang.org/)  
+- [PostgreSQL](https://www.postgresql.org/)  
+- [TypeORM](https://typeorm.io/)  
+- [Docker](https://www.docker.com/)  
+- [Jest](https://jestjs.io/) para testes
 
-## Project setup
+## 📦 Como iniciar o projeto
 
+### 1. Clonar o repositório
 ```bash
-$ yarn install
+git clone https://github.com/seu-usuario/farmhub-api.git
+cd farmhub-api
 ```
 
-## Compile and run the project
+### 2. Criar arquivo .env
+
+Copie o arquivo de exemplo e renomeie para `.env`:
 
 ```bash
-# development
-$ yarn run start
-
-# watch mode
-$ yarn run start:dev
-
-# production mode
-$ yarn run start:prod
+cp .env.example .env
 ```
 
-## Run tests
+### 3. Subir containers com Docker
+
+Execute o comando abaixo para iniciar a aplicação e o banco de dados:
 
 ```bash
-# unit tests
-$ yarn run test
-
-# e2e tests
-$ yarn run test:e2e
-
-# test coverage
-$ yarn run test:cov
+docker-compose up --build
 ```
 
-## Deployment
+Isso irá subir:
+- API NestJS em http://localhost:3000
+- Postgres em http://localhost:5432
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+## 🧪 Testes
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Rodar todos os testes:
 
 ```bash
-$ yarn install -g @nestjs/mau
-$ mau deploy
+yarn test
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+```bash
+yarn test:e2e
+```
 
-## Resources
+## 📊 Funcionalidades principais
 
-Check out a few resources that may come in handy when working with NestJS:
+- Cadastro, edição e exclusão de **produtores**  
+- Cadastro de **propriedades rurais** associadas a produtores  
+- Registro de **safras e culturas plantadas**  
+- Validação de **CPF/CNPJ**  
+- Validação de áreas (**arável + vegetação ≤ total**)  
+- Dashboard com:  
+  - Total de fazendas cadastradas  
+  - Total de hectares registrados  
+  - Distribuição por estado  
+  - Distribuição por cultura  
+  - Uso do solo (**arável vs vegetação**)  
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
 
-## Support
+## 📖 Documentação da API
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+A documentação OpenAPI (Swagger) estará disponível em:  
 
-## Stay in touch
+👉 [http://localhost:3000/api-docs](http://localhost:3000/api-docs)  
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Além disso, a API expõe os endpoints para obter a especificação em diferentes formatos:  
 
-## License
+- **JSON:** [http://localhost:3000/api-docs-json](http://localhost:3000/api-docs-json)  
+- **YAML:** [http://localhost:3000/api-docs-yaml](http://localhost:3000/api-docs-yaml)  
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+> 💡 Também está disponível o arquivo **OpenAPI padrão em YAML** diretamente no repositório.  
