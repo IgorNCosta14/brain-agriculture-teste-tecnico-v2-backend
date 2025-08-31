@@ -1,0 +1,1567 @@
+openapi: 3.0.0
+paths:
+  /producers:
+    post:
+      description: >-
+        Endpoint para criação de produtores (agricultores). Valida CPF/CNPJ,
+        garante unicidade por nome e documento e retorna apenas os campos
+        essenciais do produtor criado.
+      operationId: ProducersController_createProducer
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              valid:
+                summary: Exemplo válido
+                value:
+                  document: '12345678909'
+                  name: Acme Farming Co.
+      responses:
+        '201':
+          description: Produtor criado com sucesso.
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: Sucesso
+                  value:
+                    statusCode: 201
+                    message: Producer successfully created
+                    data:
+                      producer:
+                        id: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+                        name: jane doe
+        '400':
+          description: Erros de validação ou conflito de dados.
+          content:
+            application/json:
+              examples:
+                duplicateName:
+                  summary: Nome já utilizado
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Producer name already exists
+                duplicateDocument:
+                  summary: Documento já utilizado
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Producer document already exists
+                invalidDocument:
+                  summary: Documento inválido (CPF/CNPJ inválido)
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Invalid document
+                validationError:
+                  summary: Erro de validação do body
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message:
+                      - document must be a string
+                      - name should not be empty
+      summary: Criar produtor (agricultor)
+      tags:
+        - Producers
+    get:
+      description: >-
+        Retorna a lista paginada de produtores (agricultores) cadastrados no
+        sistema, com suporte a paginação e ordenação.
+      operationId: ProducersController_findProducers
+      parameters:
+        - name: order
+          required: false
+          in: query
+          description: Direção da ordenação
+          schema:
+            example: DESC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Campo usado para ordenação
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - name
+              - createdAt
+        - name: page
+          required: false
+          in: query
+          description: Página atual (>= 1)
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          description: Itens por página (1..100)
+          schema:
+            example: 10
+            type: number
+      responses:
+        '200':
+          description: Lista de produtores retornada com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Producers successfully retrieved
+                  data:
+                    producers:
+                      items:
+                        - id: 1015ce5b-4563-466b-a514-de157fde9b9a
+                          documentType: CPF
+                          document: '14805924713'
+                          name: igor 1
+                          createdAt: '2025-08-29T21:53:50.964Z'
+                          updatedAt: '2025-08-29T21:53:50.964Z'
+                          deletedAt: null
+                      total: 1
+                      totalPages: 1
+                      page: 1
+                      limit: 10
+                      order: DESC
+                      orderBy: createdAt
+      summary: Listar todos os produtores
+      tags:
+        - Producers
+  /producers/{id}:
+    get:
+      description: >-
+        Endpoint para buscar um produtor (agricultor) específico pelo seu ID
+        (UUID v4).
+      operationId: ProducersController_findProducerById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: UUID v4 do produtor
+          schema:
+            example: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+      responses:
+        '200':
+          description: Produtor encontrado com sucesso.
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: Sucesso
+                  value:
+                    statusCode: 200
+                    message: Producer successfully found
+                    data:
+                      producer:
+                        id: 1015ce5b-4563-466b-a514-de157fde9b9a
+                        documentType: CPF
+                        document: '14805924713'
+                        name: igor 1
+                        properties:
+                          - id: a4527ea2-915e-4729-ad30-1de710adabbf
+                            name: Green Valley Farm
+                        createdAt: '2025-08-29T21:53:50.964Z'
+                        updatedAt: '2025-08-29T21:53:50.964Z'
+                        deletedAt: null
+        '400':
+          description: ID ausente ou inválido.
+          content:
+            application/json:
+              examples:
+                missingId:
+                  summary: Id não fornecido
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Id is required!
+                invalidUuid:
+                  summary: Formato de UUID inválido
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: >-
+                      Id must be a valid UUID (version 4), it should be provided
+                      in params
+        '404':
+          description: Produtor não encontrado.
+          content:
+            application/json:
+              examples:
+                notFound:
+                  summary: Produtor inexistente
+                  value:
+                    statusCode: 404
+                    error: Not Found
+                    message: Producer not found!
+      summary: Buscar produtor por ID
+      tags:
+        - Producers
+    put:
+      description: >-
+        Endpoint para atualizar parcialmente as informações de um produtor
+        (agricultor). Permite alterar document (CPF/CNPJ) e/ou name. Valida
+        unicidade e consistência do documento.
+      operationId: ProducersController_updateProducer
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: UUID v4 do produtor
+          schema:
+            example: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              updateName:
+                summary: Atualizando apenas o nome
+                value:
+                  name: Acme Farming Co. (Updated)
+              updateDocument:
+                summary: Atualizando apenas o documento
+                value:
+                  document: '12345678000195'
+              updateBoth:
+                summary: Atualizando nome e documento
+                value:
+                  name: Green Valley LTDA
+                  document: '12345678909'
+      responses:
+        '200':
+          description: Produtor atualizado com sucesso.
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: Sucesso
+                  value:
+                    statusCode: 200
+                    message: Producer successfully updated
+                    data:
+                      producer:
+                        id: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+                        document: '12345678909'
+                        documentType: CPF
+                        name: Acme Farming Co. (Updated)
+                        created_at: '2025-08-27T17:10:20.000Z'
+                        updated_at: '2025-08-27T18:20:00.000Z'
+                        deleted_at: null
+        '400':
+          description: >-
+            Erros de validação, id ausente/inválido, documento/nome duplicados
+            ou documento inválido.
+          content:
+            application/json:
+              examples:
+                missingId:
+                  summary: Id não fornecido
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Id is required!
+                invalidUuid:
+                  summary: UUID inválido
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: >-
+                      Id must be a valid UUID (version 4), it should be provided
+                      in params
+                duplicateDocument:
+                  summary: Documento já utilizado por outro produtor
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Producer document already exists
+                duplicateName:
+                  summary: Nome já utilizado por outro produtor
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Producer name already exists
+                invalidDocument:
+                  summary: Documento inválido (CPF/CNPJ inválido)
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Invalid document
+                validationError:
+                  summary: Erros de validação no body
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message:
+                      - document must be a string
+                      - document must have between 11 and 14 digits
+                      - name must be a string
+        '404':
+          description: Produtor não encontrado.
+          content:
+            application/json:
+              examples:
+                notFound:
+                  summary: Produtor inexistente
+                  value:
+                    statusCode: 404
+                    error: Not Found
+                    message: Producer not found!
+      summary: Atualizar produtor por ID
+      tags:
+        - Producers
+    delete:
+      description: >-
+        Endpoint para realizar um soft delete em um produtor (agricultor)
+        identificado pelo seu id. O registro não é removido do banco, apenas
+        marcado como deletado (deleted_at).
+      operationId: ProducersController_deleteProducer
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: UUID v4 do produtor
+          schema:
+            example: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+      responses:
+        '200':
+          description: Produtor excluído (soft delete) com sucesso.
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: Sucesso
+                  value:
+                    statusCode: 200
+                    message: Producer successfully deleted
+        '400':
+          description: Id ausente ou inválido.
+          content:
+            application/json:
+              examples:
+                missingId:
+                  summary: Id não fornecido
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Id is required!
+                invalidUuid:
+                  summary: Formato de UUID inválido
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: >-
+                      Id must be a valid UUID (version 4), it should be provided
+                      in params
+        '404':
+          description: Produtor não encontrado.
+          content:
+            application/json:
+              examples:
+                notFound:
+                  summary: Produtor inexistente
+                  value:
+                    statusCode: 404
+                    error: Not Found
+                    message: Producer not found!
+      summary: Excluir produtor (soft delete)
+      tags:
+        - Producers
+  /crops:
+    post:
+      description: >-
+        Cria uma nova cultura (crop) com um nome único. O nome não pode ser
+        vazio e não deve já existir no banco de dados.
+      operationId: CropsController_createCrop
+      parameters: []
+      requestBody:
+        required: true
+        description: Dados necessários para criar uma cultura
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              valid:
+                summary: Requisição válida
+                value:
+                  name: Soja
+      responses:
+        '201':
+          description: Cultura criada com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 201
+                  message: Crop successfully created
+                  data:
+                    crop:
+                      id: e3a6d1e0-4f1f-4b47-9af0-3cbd9e6f5a10
+                      name: Soja
+                      createdAt: '2025-08-28T12:34:56.789Z'
+        '409':
+          description: 'Conflito: a cultura já existe ou o nome está vazio'
+          content:
+            application/json:
+              examples:
+                emptyName:
+                  summary: Nome vazio
+                  value:
+                    statusCode: 409
+                    message: Crop name must not be empty
+                    error: Conflict
+                duplicateName:
+                  summary: Nome já existente
+                  value:
+                    statusCode: 409
+                    message: Crop with this name already exists
+                    error: Conflict
+      summary: Criar uma nova cultura
+      tags:
+        - Crops
+    get:
+      description: >-
+        Retorna a lista de todas as culturas cadastradas com suporte a paginação
+        e ordenação.
+      operationId: CropsController_findCrops
+      parameters:
+        - name: order
+          required: false
+          in: query
+          description: 'Direção da ordenação (padrão: ASC)'
+          schema:
+            enum:
+              - ASC
+              - DESC
+            type: string
+        - name: orderBy
+          required: false
+          in: query
+          description: 'Campo usado para ordenação (padrão: name)'
+          schema:
+            enum:
+              - name
+              - createdAt
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: 'Número da página para paginação (padrão: 1)'
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          description: 'Quantidade de itens por página (padrão: 10, máximo: 100)'
+          schema:
+            example: 10
+            type: number
+      responses:
+        '200':
+          description: Culturas retornadas com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Crops successfully retrieved
+                  data:
+                    crops:
+                      - id: e3a6d1e0-4f1f-4b47-9af0-3cbd9e6f5a10
+                        name: Milho
+                      - id: b2c4a8d5-9e77-41a1-873a-1baf4d9b7e11
+                        name: Soja
+                      - id: c8d7e6f9-3a1b-45f2-94ce-6d7f9a1b2c3d
+                        name: Café
+                  meta:
+                    page: 1
+                    limit: 10
+                    total: 3
+                    totalPages: 1
+                    order: ASC
+                    orderBy: name
+      summary: Listar todas as culturas
+      tags:
+        - Crops
+  /crops/{id}:
+    get:
+      description: >-
+        Retorna uma cultura específica pelo seu identificador (UUID). Caso não
+        exista, retorna 404.
+      operationId: CropsController_findCropById
+      parameters: []
+      responses:
+        '200':
+          description: Crop successfully retrieved
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Crop successfully retrieved
+                  data:
+                    crop:
+                      id: 6c6212e8-eff6-48ab-879b-dec77e5c585d
+                      name: Milho
+                      propertyCrops:
+                        - id: 841a07b8-5eae-4c99-b60f-c02e03df4a6b
+                          createdAt: '2025-08-30T09:51:38.909Z'
+                          updatedAt: '2025-08-30T09:51:38.909Z'
+                          deletedAt: null
+                      createdAt: '2025-08-28T22:57:02.968Z'
+        '404':
+          description: Crop not found
+          content:
+            application/json:
+              example:
+                statusCode: 404
+                message: Crop not found
+                error: Not Found
+      summary: Buscar cultura por ID
+      tags:
+        - Crops
+  /harvests:
+    post:
+      description: >-
+        Cria uma nova safra com label, ano, data de início e data de término. A
+        data de término deve ser igual ou posterior à data de início.
+      operationId: HarvestsController_createHarvest
+      parameters: []
+      requestBody:
+        required: true
+        description: Dados necessários para criar uma safra
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              valid:
+                summary: Requisição válida (YYYY-MM-DD)
+                value:
+                  label: Safra 2025
+                  year: 2025
+                  startDate: '2025-01-01'
+                  endDate: '2025-12-31'
+              validBrazilian:
+                summary: Requisição válida com datas DD/MM/YYYY (serão normalizadas)
+                value:
+                  label: Safra 2025
+                  year: 2025
+                  startDate: 01/01/2025
+                  endDate: 31/12/2025
+      responses:
+        '201':
+          description: Safra criada com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 201
+                  message: Harvest successfully created
+                  data:
+                    harvest:
+                      id: 2f8f4a19-6c4d-4d7e-9e2c-7d1a9e9f0b12
+                      label: Safra 2025
+                      year: 2025
+                      startDate: '2025-01-01'
+                      endDate: '2025-12-31'
+                      createdAt: '2025-08-28T12:34:56.789Z'
+        '400':
+          description: Requisição inválida (por exemplo, endDate antes de startDate)
+          content:
+            application/json:
+              examples:
+                endBeforeStart:
+                  summary: endDate anterior a startDate
+                  value:
+                    statusCode: 400
+                    message: End date must be on or after start date
+                    error: Bad Request
+                invalidDateFormat:
+                  summary: Formato de data inválido
+                  value:
+                    statusCode: 400
+                    message: startDate must be a valid date in YYYY-MM-DD format
+                    error: Bad Request
+      summary: Criar uma nova safra (harvest)
+      tags:
+        - Harvests
+    get:
+      description: >-
+        Retorna a lista de safras com suporte a paginação e ordenação (ASC/DESC,
+        por ano, rótulo ou data de criação).
+      operationId: HarvestsController_findAllHarvests
+      parameters:
+        - name: order
+          required: false
+          in: query
+          description: 'Direção da ordenação (padrão: DESC)'
+          schema:
+            enum:
+              - ASC
+              - DESC
+            type: string
+        - name: orderBy
+          required: false
+          in: query
+          description: 'Campo de ordenação (padrão: year)'
+          schema:
+            enum:
+              - year
+              - label
+              - createdAt
+            type: string
+        - name: page
+          required: false
+          in: query
+          description: 'Número da página para paginação (padrão: 1)'
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          description: 'Quantidade de itens por página (padrão: 10, máximo: 100)'
+          schema:
+            example: 10
+            type: number
+      responses:
+        '200':
+          description: Safras retornadas com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Harvests successfully retrieved
+                  data:
+                    harvests:
+                      - id: 7d7a6a8e-1b2c-4d5e-9f01-23456789abcd
+                        label: Safra 2024/2025
+                        year: 2025
+                        startDate: '2024-09-01'
+                        endDate: '2025-08-31'
+                      - id: 1a2b3c4d-5e6f-7081-92a3-b4c5d6e7f809
+                        label: Safra 2023/2024
+                        year: 2024
+                        startDate: '2023-09-01'
+                        endDate: '2024-08-31'
+                  meta:
+                    page: 1
+                    limit: 10
+                    total: 2
+                    totalPages: 1
+                    order: DESC
+                    orderBy: year
+      summary: Listar todas as safras
+      tags:
+        - Harvests
+  /harvests/{id}:
+    get:
+      description: >-
+        Retorna os detalhes de uma safra específica a partir do seu
+        identificador (UUID v4).
+      operationId: HarvestsController_findHarvestById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Identificador da safra (UUID v4)
+          schema:
+            example: 0f6107bc-2bc0-4125-8c16-b6030df20d4b
+      responses:
+        '200':
+          description: Safra retornada com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Harvest successfully retrieved
+                  data:
+                    harvest:
+                      id: 0f6107bc-2bc0-4125-8c16-b6030df20d4b
+                      label: 2ª Safra 2025
+                      year: 2025
+                      startDate: '2025-01-29'
+                      endDate: '2025-04-30'
+                      propertyCrops:
+                        - id: 841a07b8-5eae-4c99-b60f-c02e03df4a6b
+                          createdAt: '2025-08-30T09:51:38.909Z'
+                          updatedAt: '2025-08-30T09:51:38.909Z'
+                          deletedAt: null
+                      createdAt: '2025-08-29T16:19:34.118Z'
+                      updatedAt: '2025-08-29T16:19:34.118Z'
+        '400':
+          description: 'Parâmetro inválido (ex.: UUID mal formatado)'
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message:
+                    - Id must be provided in params
+                    - >-
+                      Id must be a valid UUID (version 4), it should be provided
+                      in params
+                  error: Bad Request
+        '404':
+          description: Safra não encontrada
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Harvest not found
+                  error: Not Found
+      summary: Buscar safra por ID
+      tags:
+        - Harvests
+  /properties:
+    post:
+      description: >-
+        Endpoint para criação de propriedades vinculadas a um produtor. Valida o
+        UUID do produtor, campos obrigatórios e formatos numéricos (strings com
+        até 2 casas para áreas e até 6 casas para latitude/longitude). Também
+        valida a consistência das áreas (área agricultável + vegetação não pode
+        exceder a área total).
+      operationId: PropertiesController_createProperty
+      parameters: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              valid:
+                summary: Exemplo válido
+                value:
+                  producerId: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+                  name: Fazenda Boa Esperança
+                  city: Sorriso
+                  state: MT
+                  totalAreaHa: '1500.50'
+                  arableAreaHa: '1000.00'
+                  vegetationAreaHa: '500.50'
+                  cep: '78555000'
+                  complement: Galpão 3
+                  latitude: '-12.546789'
+                  longitude: '-55.721234'
+      responses:
+        '201':
+          description: Propriedade criada com sucesso.
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: Sucesso
+                  value:
+                    statusCode: 201
+                    message: Property successfully created
+                    data:
+                      property:
+                        id: 4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a
+                        producer_id: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+                        name: Fazenda Boa Esperança
+                        city: Sorriso
+                        state: MT
+                        total_area_ha: '1500.50'
+                        arable_area_ha: '1000.00'
+                        vegetation_area_ha: '500.50'
+                        cep: '78555000'
+                        complement: Galpão 3
+                        latitude: '-12.546789'
+                        longitude: '-55.721234'
+                        created_at: '2025-08-29T12:00:00.000Z'
+                        updated_at: '2025-08-29T12:00:00.000Z'
+                        deleted_at: null
+        '400':
+          description: Erros de validação ou inconsistência de dados.
+          content:
+            application/json:
+              examples:
+                validationError:
+                  summary: Erros de validação no body
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message:
+                      - producerId must be a valid UUID v4
+                      - name should not be empty
+                      - >-
+                        totalAreaHa must be a valid number with up to 2 decimal
+                        places
+                      - cep must be between 8 and 20 digits
+                      - >-
+                        latitude must be a valid number with up to 6 decimal
+                        places
+                areaExceeded:
+                  summary: >-
+                    Soma de áreas agricultável + vegetação maior que a área
+                    total
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Arable and vegetation areas cannot exceed total area (ha)
+        '404':
+          description: Produtor não encontrado para vincular a propriedade.
+          content:
+            application/json:
+              examples:
+                producerNotFound:
+                  summary: Produtor inexistente
+                  value:
+                    statusCode: 404
+                    error: Not Found
+                    message: Producer not found!
+      summary: Criar propriedade (fazenda do produtor)
+      tags:
+        - Properties
+    get:
+      description: >-
+        Retorna a lista paginada de propriedades cadastradas no sistema, com
+        suporte a paginação e ordenação.
+      operationId: PropertiesController_getProperties
+      parameters:
+        - name: order
+          required: false
+          in: query
+          description: Order direction
+          schema:
+            example: DESC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Field used for ordering
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - name
+              - city
+              - state
+              - createdAt
+        - name: page
+          required: false
+          in: query
+          description: Current page (>= 1)
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          description: Items per page (1..100)
+          schema:
+            example: 10
+            type: number
+      responses:
+        '200':
+          description: Lista de propriedades retornada com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Properties successfully retrieved
+                  data:
+                    properties:
+                      items:
+                        - id: 4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a
+                          producerId: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+                          name: Fazenda Boa Esperança
+                          city: Sorriso
+                          state: MT
+                          totalAreaHa: '1500.50'
+                          arableAreaHa: '1000.00'
+                          vegetationAreaHa: '500.50'
+                          cep: '78555000'
+                          complement: Galpão 3
+                          latitude: '-12.546789'
+                          longitude: '-55.721234'
+                          createdAt: '2025-08-29T12:00:00.000Z'
+                          updatedAt: '2025-08-29T12:00:00.000Z'
+                          deletedAt: null
+                      total: 1
+                      totalPages: 1
+                      page: 1
+                      limit: 10
+                      order: DESC
+                      orderBy: createdAt
+      summary: Listar propriedades
+      tags:
+        - Properties
+  /properties/{id}:
+    get:
+      description: Endpoint para buscar uma propriedade específica pelo seu ID (UUID v4).
+      operationId: PropertiesController_getPropertyById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: UUID v4 da propriedade
+          schema:
+            example: a4527ea2-915e-4729-ad30-1de710adabbf
+      responses:
+        '200':
+          description: Lista de propriedades retornada com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Properties successfully retrieved
+                  data:
+                    properties:
+                      items:
+                        - id: 4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a
+                          producerId: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+                          name: Fazenda Boa Esperança
+                          city: Sorriso
+                          state: MT
+                          totalAreaHa: '1500.50'
+                          arableAreaHa: '1000.00'
+                          vegetationAreaHa: '500.50'
+                          cep: '78555000'
+                          complement: Galpão 3
+                          latitude: '-12.546789'
+                          longitude: '-55.721234'
+                          createdAt: '2025-08-29T12:00:00.000Z'
+                          updatedAt: '2025-08-29T12:00:00.000Z'
+                          deletedAt: null
+                      total: 1
+                      totalPages: 1
+                      page: 1
+                      limit: 10
+                      order: DESC
+                      orderBy: createdAt
+        '400':
+          description: ID ausente ou inválido.
+          content:
+            application/json:
+              examples:
+                invalidUuid:
+                  summary: UUID inválido (param)
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: >-
+                      Id must be a valid UUID (version 4), it should be provided
+                      in params
+        '404':
+          description: Propriedade não encontrada.
+          content:
+            application/json:
+              examples:
+                notFound:
+                  summary: Propriedade inexistente
+                  value:
+                    statusCode: 404
+                    error: Not Found
+                    message: Property not found!
+      summary: Buscar propriedade por ID
+      tags:
+        - Properties
+    put:
+      description: >-
+        Endpoint para atualização de uma propriedade existente. Permite
+        atualizar parcialmente os dados. Mantém as mesmas validações de formato
+        das áreas (strings numéricas) e coordenadas.
+      operationId: PropertiesController_updateProperty
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: UUID v4 da propriedade
+          schema:
+            example: 4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              updateNameOnly:
+                summary: Atualizando apenas o nome
+                value:
+                  name: Fazenda Boa Esperança (Atualizada)
+              updateAreas:
+                summary: Atualizando áreas (strings numéricas)
+                value:
+                  totalAreaHa: '2000.00'
+                  arableAreaHa: '1200.00'
+                  vegetationAreaHa: '800.00'
+              updateLocation:
+                summary: Atualizando CEP e coordenadas
+                value:
+                  cep: '78555000'
+                  latitude: '-12.500000'
+                  longitude: '-55.700000'
+      responses:
+        '200':
+          description: Propriedade atualizada com sucesso.
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: Sucesso
+                  value:
+                    statusCode: 200
+                    message: Property successfully updated
+                    data:
+                      property:
+                        id: 4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a
+                        producer_id: 0bf1b1e7-6a9d-44a7-8f97-9a2b0a8e0c1a
+                        name: Fazenda Boa Esperança (Atualizada)
+                        city: Sorriso
+                        state: MT
+                        total_area_ha: '2000.00'
+                        arable_area_ha: '1200.00'
+                        vegetation_area_ha: '800.00'
+                        cep: '78555000'
+                        complement: Galpão 3
+                        latitude: '-12.500000'
+                        longitude: '-55.700000'
+                        created_at: '2025-08-29T12:00:00.000Z'
+                        updated_at: '2025-08-29T13:00:00.000Z'
+                        deleted_at: null
+        '400':
+          description: Erros de validação ou inconsistência de áreas.
+          content:
+            application/json:
+              examples:
+                invalidUuid:
+                  summary: UUID inválido (param)
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: >-
+                      Id must be a valid UUID (version 4), it should be provided
+                      in params
+                validationError:
+                  summary: Erros de validação no body
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message:
+                      - >-
+                        totalAreaHa must be a valid number with up to 2 decimal
+                        places
+                      - >-
+                        latitude must be a valid number with up to 6 decimal
+                        places
+                areaExceeded:
+                  summary: >-
+                    Soma de áreas agricultável + vegetação maior que a área
+                    total
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: Arable and vegetation areas cannot exceed total area (ha)
+        '404':
+          description: Propriedade não encontrada.
+          content:
+            application/json:
+              examples:
+                notFound:
+                  summary: Propriedade inexistente
+                  value:
+                    statusCode: 404
+                    error: Not Found
+                    message: Property not found!
+      summary: Atualizar propriedade
+      tags:
+        - Properties
+    delete:
+      description: >-
+        Endpoint para realizar um soft delete em uma propriedade identificada
+        pelo seu id. O registro não é removido fisicamente do banco; apenas
+        marcado com deleted_at.
+      operationId: PropertiesController_deleteProperty
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: UUID v4 da propriedade
+          schema:
+            example: 4c1b3b32-5b2e-4e1d-9b7f-2a2b0a8e0c1a
+      responses:
+        '200':
+          description: Propriedade excluída (soft delete) com sucesso.
+          content:
+            application/json:
+              examples:
+                success:
+                  summary: Sucesso
+                  value:
+                    statusCode: 200
+                    message: Property successfully deleted
+        '400':
+          description: ID ausente ou inválido.
+          content:
+            application/json:
+              examples:
+                invalidUuid:
+                  summary: UUID inválido (param)
+                  value:
+                    statusCode: 400
+                    error: Bad Request
+                    message: >-
+                      Id must be a valid UUID (version 4), it should be provided
+                      in params
+        '404':
+          description: Propriedade não encontrada.
+          content:
+            application/json:
+              examples:
+                notFound:
+                  summary: Propriedade inexistente
+                  value:
+                    statusCode: 404
+                    error: Not Found
+                    message: Property not found!
+      summary: Excluir propriedade (soft delete)
+      tags:
+        - Properties
+  /property-crops:
+    post:
+      description: >-
+        Cria um registro que vincula uma propriedade rural, uma safra e uma
+        cultura plantada.
+      operationId: PropertyCropController_createPropertyCrop
+      parameters: []
+      requestBody:
+        required: true
+        description: >-
+          Corpo da requisição para criar um vínculo entre propriedade, safra e
+          cultura.
+        content:
+          application/json:
+            schema:
+              type: string
+            examples:
+              valid:
+                summary: Exemplo válido
+                value:
+                  propertyId: 7b0f9a8e-4d8f-4a3b-bc12-6a4b6f8b1c2d
+                  harvestId: 9a7e2d1c-1b2a-4c3d-9e8f-0a1b2c3d4e5f
+                  cropId: c8c3e1a4-f2d1-4b9e-8a23-1e4f5a6b7c8d
+      responses:
+        '201':
+          description: Vínculo criado com sucesso.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 201
+                  message: Property crop successfully created
+                  data:
+                    propertyCrop:
+                      id: bf7c7f32-5a6d-4a9b-8c21-1079f1db2d31
+                      property_id: 7b0f9a8e-4d8f-4a3b-bc12-6a4b6f8b1c2d
+                      harvest_id: 9a7e2d1c-1b2a-4c3d-9e8f-0a1b2c3d4e5f
+                      crop_id: c8c3e1a4-f2d1-4b9e-8a23-1e4f5a6b7c8d
+                      created_at: '2025-08-30T12:00:00.000Z'
+                      updated_at: '2025-08-30T12:00:00.000Z'
+        '400':
+          description: Requisição inválida.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 400
+                  message: Invalid payload
+                  error: Bad Request
+      summary: Criar vínculo de cultura com propriedade/safra
+      tags:
+        - Property crops
+    get:
+      description: |2-
+
+                    Endpoint para listar os vínculos entre propriedades, safras e culturas.
+
+                    - Suporta **paginação** (page, limit).
+                    - Suporta **ordenação** (order, orderBy).
+                    - Permite aplicar **filtros por ID** (propertyId, harvestId, cropId).
+                    - Retorna dados completos da propriedade, safra e cultura relacionados.
+
+                    **Observações:**
+                    - "order" pode ser 'ASC' ou 'DESC'.
+                    - "orderBy" pode ser um dos campos: 'createdAt', 'updatedAt'.
+            
+      operationId: PropertyCropController_getPropertyCrops
+      parameters:
+        - name: order
+          required: false
+          in: query
+          description: Order direction
+          schema:
+            example: DESC
+            type: string
+            enum:
+              - ASC
+              - DESC
+        - name: orderBy
+          required: false
+          in: query
+          description: Field used for ordering
+          schema:
+            example: createdAt
+            type: string
+            enum:
+              - createdAt
+        - name: page
+          required: false
+          in: query
+          description: Current page (>= 1)
+          schema:
+            example: 1
+            type: number
+        - name: limit
+          required: false
+          in: query
+          description: Items per page (1..100)
+          schema:
+            example: 10
+            type: number
+        - name: propertyId
+          required: false
+          in: query
+          description: Filter by Property ID
+          schema:
+            example: a4527ea2-915e-4729-ad30-1de710adabbf
+            type: string
+        - name: harvestId
+          required: false
+          in: query
+          description: Filter by Harvest ID
+          schema:
+            example: 0f6107bc-2bc0-4125-8c16-b6030df20d4b
+            type: string
+        - name: cropId
+          required: false
+          in: query
+          description: Filter by Crop ID
+          schema:
+            example: 6c6212e8-eff6-48ab-879b-dec77e5c585d
+            type: string
+      responses:
+        '200':
+          description: Lista paginada de vínculos retornada com sucesso
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Property crops successfully found
+                  data:
+                    propertyCrops:
+                      items:
+                        - id: 841a07b8-5eae-4c99-b60f-c02e03df4a6b
+                          property:
+                            id: a4527ea2-915e-4729-ad30-1de710adabbf
+                            name: Green Valley Farm
+                            city: Uberlândia
+                            state: MG
+                            totalAreaHa: '1500.20'
+                            arableAreaHa: '1000.20'
+                            vegetationAreaHa: '500.00'
+                            cep: '38400100'
+                            complement: Near BR-050
+                            latitude: '-18.918600'
+                            longitude: '-48.277200'
+                            createdAt: '2025-08-29T23:49:20.105Z'
+                            updatedAt: '2025-08-29T23:49:20.105Z'
+                            deletedAt: null
+                          harvest:
+                            id: 0f6107bc-2bc0-4125-8c16-b6030df20d4b
+                            label: 2ª Safra 2025
+                            year: 2025
+                            startDate: '2025-01-29'
+                            endDate: '2025-04-30'
+                            createdAt: '2025-08-29T16:19:34.118Z'
+                            updatedAt: '2025-08-29T16:19:34.118Z'
+                          crop:
+                            id: 6c6212e8-eff6-48ab-879b-dec77e5c585d
+                            name: Milho
+                            createdAt: '2025-08-28T22:57:02.968Z'
+                          createdAt: '2025-08-30T09:51:38.909Z'
+                          updatedAt: '2025-08-30T09:51:38.909Z'
+                          deletedAt: null
+                      total: 1
+                      totalPages: 1
+                      page: 1
+                      limit: 10
+                      order: DESC
+                      orderBy: createdAt
+      summary: Listar vínculos de culturas
+      tags:
+        - Property crops
+  /property-crops/{id}:
+    get:
+      description: >-
+        Retorna um único registro de vínculo (propriedade/safra/cultura) pelo
+        seu identificador.
+      operationId: PropertyCropController_getPpropertyCropById
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Identificador do vínculo (UUID).
+          schema:
+            example: bf7c7f32-5a6d-4a9b-8c21-1079f1db2d31
+      responses:
+        '200':
+          description: Vínculo encontrado.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Property crop successfully found
+                  data:
+                    propertyCrops:
+                      id: 841a07b8-5eae-4c99-b60f-c02e03df4a6b
+                      property:
+                        id: a4527ea2-915e-4729-ad30-1de710adabbf
+                        name: Green Valley Farm
+                        city: Uberlândia
+                        state: MG
+                        totalAreaHa: '1500.20'
+                        arableAreaHa: '1000.20'
+                        vegetationAreaHa: '500.00'
+                        cep: '38400100'
+                        complement: Near BR-050
+                        latitude: '-18.918600'
+                        longitude: '-48.277200'
+                        createdAt: '2025-08-29T23:49:20.105Z'
+                        updatedAt: '2025-08-29T23:49:20.105Z'
+                        deletedAt: null
+                      harvest:
+                        id: 0f6107bc-2bc0-4125-8c16-b6030df20d4b
+                        label: 2ª Safra 2025
+                        year: 2025
+                        startDate: '2025-01-29'
+                        endDate: '2025-04-30'
+                        createdAt: '2025-08-29T16:19:34.118Z'
+                        updatedAt: '2025-08-29T16:19:34.118Z'
+                      crop:
+                        id: 6c6212e8-eff6-48ab-879b-dec77e5c585d
+                        name: Milho
+                        createdAt: '2025-08-28T22:57:02.968Z'
+                      createdAt: '2025-08-30T09:51:38.909Z'
+                      updatedAt: '2025-08-30T09:51:38.909Z'
+                      deletedAt: null
+        '404':
+          description: Vínculo não encontrado.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Property crop not found
+                  error: Not Found
+      summary: Buscar vínculo por ID
+      tags:
+        - Property crops
+    delete:
+      description: >-
+        Exclui um registro de vínculo (propriedade/safra/cultura) pelo seu
+        identificador.
+      operationId: PropertyCropController_deletePpropertyCrop
+      parameters:
+        - name: id
+          required: true
+          in: path
+          description: Identificador do vínculo (UUID).
+          schema:
+            example: bf7c7f32-5a6d-4a9b-8c21-1079f1db2d31
+      responses:
+        '200':
+          description: Vínculo excluído com sucesso.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Property crop successfully delete
+        '404':
+          description: Vínculo não encontrado.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 404
+                  message: Property crop not found
+                  error: Not Found
+      summary: Excluir vínculo por ID (soft delete)
+      tags:
+        - Property crops
+  /reports/overview:
+    get:
+      description: >-
+        Retorna total de fazendas, total de hectares, distribuição por estado,
+        por cultura e por uso do solo.
+      operationId: ReportsController_getOverview
+      parameters: []
+      responses:
+        '200':
+          description: Dados do dashboard retornados com sucesso.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Reports overview successfully retrieved
+                  data:
+                    overview:
+                      totalFarms: 15
+                      totalHectares: '1500.50'
+                      farmsByState:
+                        - label: MG
+                          value: 10
+                        - label: SP
+                          value: 5
+                      farmsByCrop:
+                        - label: Soy
+                          value: 7
+                        - label: Corn
+                          value: 8
+                      landUse:
+                        - label: Agricultural
+                          value: '1000.20'
+                        - label: Vegetation
+                          value: '500.30'
+      summary: Obter visão geral do dashboard
+      tags:
+        - Reports
+  /reports/total-farms:
+    get:
+      operationId: ReportsController_getTotalFarms
+      parameters: []
+      responses:
+        '200':
+          description: Total de fazendas retornado com sucesso.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Total farms successfully retrieved
+                  data:
+                    totalFarms: 15
+      summary: Obter total de fazendas
+      tags:
+        - Reports
+  /reports/total-hectares:
+    get:
+      operationId: ReportsController_getTotalHectares
+      parameters: []
+      responses:
+        '200':
+          description: Total de hectares retornado com sucesso.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Total hectares successfully retrieved
+                  data:
+                    totalHectares: '1500.50'
+      summary: Obter total de hectares
+      tags:
+        - Reports
+  /reports/pie-by-state:
+    get:
+      operationId: ReportsController_getFarmsByState
+      parameters: []
+      responses:
+        '200':
+          description: Fazendas por estado retornadas com sucesso.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Farms by state successfully retrieved
+                  data:
+                    farmsByState:
+                      - label: MG
+                        value: 10
+                      - label: SP
+                        value: 5
+      summary: Obter fazendas por estado
+      tags:
+        - Reports
+  /reports/pie-by-crop:
+    get:
+      operationId: ReportsController_getFarmsByCrop
+      parameters: []
+      responses:
+        '200':
+          description: Fazendas por cultura retornadas com sucesso.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Farms by crop successfully retrieved
+                  data:
+                    farmsByCrop:
+                      - label: Soy
+                        value: 7
+                      - label: Corn
+                        value: 8
+      summary: Obter fazendas por cultura plantada
+      tags:
+        - Reports
+  /reports/pie-by-land-use:
+    get:
+      operationId: ReportsController_getLandUse
+      parameters: []
+      responses:
+        '200':
+          description: Distribuição de uso do solo retornada com sucesso.
+          content:
+            application/json:
+              schema:
+                example:
+                  statusCode: 200
+                  message: Land use successfully retrieved
+                  data:
+                    landUse:
+                      - label: Agricultural
+                        value: '1000.20'
+                      - label: Vegetation
+                        value: '500.30'
+      summary: Obter distribuição de uso do solo
+      tags:
+        - Reports
+info:
+  title: Farmhub API
+  description: Documentação da Farmhub Nest API
+  version: '1.0'
+  contact: {}
+tags: []
+servers: []
+components:
+  schemas: {}
