@@ -112,4 +112,4 @@ Além disso, a API expõe os endpoints para obter a especificação em diferente
 > 💡 Também está disponível o arquivo **OpenAPI padrão em YAML** diretamente no repositório.  
 
 ## 📐 Diagrama de Entidades
-![Diagrama em branco](https://github.com/user-attachments/assets/0c7dc8cf-c86f-4c14-a33c-e2fd364a7d20)
+![Diagrama em branco](https://github.com/user-attachments/assets/ea841014-541f-45d7-8045-d2b078d714af)
